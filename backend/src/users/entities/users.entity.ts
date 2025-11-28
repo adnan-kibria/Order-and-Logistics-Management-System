@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Customers } from "./customers.entity";
+import { DeliveryMen } from "./deliverymen.entity";
 
 @Entity('users')
 export class Users {
@@ -18,4 +19,7 @@ export class Users {
 
     @OneToOne(() => Customers, customer => customer.user)
     customer: Customers;
+
+    @OneToOne(()=>DeliveryMen,deliveryman => deliveryman.user)
+    deliveryman : DeliveryMen
 }

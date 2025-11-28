@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Categories } from "./categories.entity";
+import { OrderDetails } from "src/orders/entities/order-details.entity";
 
 @Entity('products')
 export class Products {
@@ -24,5 +25,8 @@ export class Products {
     @ManyToOne(() => Categories, category => category.products)
     @JoinColumn({ name: 'categoryId' })
     category: Categories;
+
+    @OneToMany(() => OrderDetails, orderDetails => orderDetails.product)
+    orderDetails: OrderDetails[];
 
 }
