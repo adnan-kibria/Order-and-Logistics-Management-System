@@ -4,9 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './users/user.module';
 import { ProductModule } from './products/product.module';
 import { OrderModule } from './orders/order.module';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
-  imports: [UserModule, ProductModule, OrderModule,
+  imports: [UserModule, ProductModule, OrderModule, CustomersModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -16,6 +17,9 @@ import { OrderModule } from './orders/order.module';
       database: 'e-commerce-web-app',
       autoLoadEntities: true,
       synchronize: true
-    })],
+    }),
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule { }
