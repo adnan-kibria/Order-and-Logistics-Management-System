@@ -7,6 +7,8 @@ import { OrderModule } from './orders/order.module';
 import { CustomersModule } from './customers/customers.module';
 import { AuthModule } from './auth/auth.module';
 import { ShippingAddressModule } from './shipping-addresses/shipping-address.module';
+import { DeliverymanModule } from './deliveryman/deliveryman.module';
+import { InventoryManagerModule } from './inventory-manager/inventory-manager.module';
 
 @Module({
   imports: [UserModule, ProductModule, OrderModule, CustomersModule, ShippingAddressModule,
@@ -21,6 +23,8 @@ import { ShippingAddressModule } from './shipping-addresses/shipping-address.mod
       synchronize: true
     }),
     AuthModule,
+    DeliverymanModule,
+    InventoryManagerModule,
   ],
   controllers: [],
   providers: [],
