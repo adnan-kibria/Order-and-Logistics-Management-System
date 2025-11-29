@@ -17,7 +17,7 @@ import { InventoryManagerModule } from './inventory-manager/inventory-manager.mo
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: '5850',
+      password: 'admin',
       database: 'e-commerce-web-app',
       autoLoadEntities: true,
       synchronize: true

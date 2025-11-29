@@ -22,5 +22,4 @@ export class OrderDetails {
     @ManyToOne(() => Orders, orders => orders.orderDetails)
     @JoinColumn({ name: 'orderId' })
     order: Orders;
-
 }
