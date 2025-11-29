@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Users } from "./users.entity";
-import { ShippingAddresses } from "./shipping-addresses.entity";
+import { Users } from "../../users/entities/users.entity";
+import { ShippingAddresses } from "../../shipping-addresses/entities/shipping-addresses.entity";
 import { Orders } from "src/orders/entities/orders.entity";
 
 @Entity('customers')

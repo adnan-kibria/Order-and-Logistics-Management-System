@@ -1,13 +1,18 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from "@nestjs/common";
-import { CreateProduct } from "./dto/create-product.dto";
-import { ProductRepository } from "./product.repository";
 import { Products } from "./entities/products.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Like, Repository } from "typeorm";
 
 @Injectable()
 export class ProductService {
-    constructor(private readonly productRepo: ProductRepository) { }
-    async addProduct(product: CreateProduct): Promise<Products> {
-        return await this.productRepo.addProduct(product);
+    constructor(@InjectRepository(Products) private repo: Repository<Products>) { }
+
+    async searchProduct(name: string): Promise<Products[]> {
+        return await this.repo.find({
+            where: {
+                name: Like(`%${name}%`)
+            }
+        })
     }
 }

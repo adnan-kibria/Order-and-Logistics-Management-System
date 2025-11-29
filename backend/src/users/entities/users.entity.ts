@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Customers } from "./customers.entity";
+import { Customers } from "../../customers/entities/customers.entity";
 import { DeliveryMen } from "./deliverymen.entity";
 
 // export enum UserRole {

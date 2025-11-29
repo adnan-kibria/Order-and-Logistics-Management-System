@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { Customers } from "src/users/entities/customers.entity";
+import { Customers } from "src/customers/entities/customers.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { OrderDetails } from "./order-details.entity";
 import { OrderStatuses } from "./order-statuses.entity";

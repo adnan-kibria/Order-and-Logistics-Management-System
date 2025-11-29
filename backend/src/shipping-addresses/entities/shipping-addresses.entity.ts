@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Customers } from "./customers.entity";
+import { Customers } from "../../customers/entities/customers.entity";
 
 @Entity('shipping_addresses')
 export class ShippingAddresses {
@@ -14,7 +14,7 @@ export class ShippingAddresses {
     location: string;
 
     @Column({ type: 'varchar', length: 50, nullable: true })
-    details: string;
+    details?: string;
 
     @OneToOne(() => Customers, customer => customer.shippingAddress)
     customer: Customers;
