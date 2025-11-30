@@ -9,15 +9,20 @@ import { AuthModule } from './auth/auth.module';
 import { ShippingAddressModule } from './shipping-addresses/shipping-address.module';
 import { DeliverymanModule } from './deliveryman/deliveryman.module';
 import { InventoryManagerModule } from './inventory-manager/inventory-manager.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UserModule, ProductModule, OrderModule, CustomersModule, ShippingAddressModule,
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    UserModule, ProductModule, OrderModule, CustomersModule, ShippingAddressModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: '5850',
+      password: process.env.DB_PASS,
       database: 'e-commerce-web-app',
       autoLoadEntities: true,
       synchronize: true
