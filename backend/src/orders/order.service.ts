@@ -3,7 +3,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Customers } from "src/customers/entities/customers.entity";
 import { DeliveryMen } from "src/users/entities/deliverymen.entity";
 import { OrderStatuses } from "./entities/order-statuses.entity";
@@ -93,7 +93,7 @@ export class OrderService {
     }
 
     // Munna
-    async ViewAllMyOrders(id: number): Promise<Orders[]> {
+    async viewAllMyOrders(id: number): Promise<Orders[]> {
         const customer = await this.findCustomer(id);
         const orders = await this.orderRepo.find({
             where: { customer: customer }
@@ -101,6 +101,43 @@ export class OrderService {
         return orders;
 
     }
+
+    // Munna
+    async trackOrders(cId: number): Promise<Orders[]> {
+        const customer = await this.customerRepo.findOneBy({ id: cId })
+        if (!customer) throw new Error('error')
+
+        return await this.orderRepo.find({
+            where: {
+                customer: customer,
+                orderStatus: {
+                    id: In([1, 2, 3, 5])
+                }
+
+            },
+            relations: ['orderStatus']
+        })
+    }
+
+    async viewCancelledOrders(cId: number): Promise<Orders[]> {
+        const customer = await this.customerRepo.findOneBy({ id: cId })
+        if (!customer) throw new Error('null customer')
+
+        return await this.orderRepo.find({
+            where: {
+                customer: customer,
+                orderStatus: {
+                    id: 4
+                }
+            },
+            relations: ['orderStatus']
+        });
+    }
+    // Munna
+    // async cancelOrderByCustomer(oId: number): Promise<Orders> {
+    //     const existingOrder = await this.orderRepo.findOne({ where: { id: oId } });
+    //     existingOrder?.orderStatus = this.orderDetailsRepo.findOne({ where: { id: 4 } })
+    // }
 
     //kibria
     // async assignDeliveryMan(orderId: number, deliveryManId: number): Promise<Orders> {

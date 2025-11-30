@@ -15,9 +15,20 @@ export class OrderController {
     placeOrder(@Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         return this.orderService.placeOrder(placeOrderDTO);
     }
+
+    @Get('track/:cId')
+    trackOrders(@Param('cId', ParseIntPipe) cId: number): Promise<Orders[]> {
+        return this.orderService.trackOrders(cId);
+    }
+
+    @Get('allCancelled/:cId')
+    viewCancelledOrders(@Param('cId', ParseIntPipe) cId: number): Promise<Orders[]> {
+        return this.orderService.viewCancelledOrders(cId)
+    }
+
     @Get('myOrders/:id')
     ViewAllMyOrders(@Param('id', ParseIntPipe) id: number): Promise<Orders[]> {
-        return this.orderService.ViewAllMyOrders(id);
+        return this.orderService.viewAllMyOrders(id);
     }
 
     // //kibria
