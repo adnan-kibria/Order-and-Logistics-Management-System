@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { OrderService } from "./order.service";
 import { Customers } from "src/customers/entities/customers.entity";
@@ -31,7 +31,13 @@ export class OrderController {
         return this.orderService.viewAllMyOrders(id);
     }
 
-    
+    @Put('cancelByCustomer/:oId')
+    cancelOrderByCustomer(@Param('oId', ParseIntPipe) oId: number): Promise<Orders> {
+        return this.orderService.cancelOrderByCustomer(oId);
+    }
+
+
+
 
     // //kibria
     // @Patch('assign-deliveryman/:orderId/:deliveryManId')
