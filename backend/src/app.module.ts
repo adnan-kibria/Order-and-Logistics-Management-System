@@ -20,10 +20,10 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5432,
-      username: 'postgres',
+      port: Number(process.env.PORT),
+      username: process.env.DB_USER_NAME,
       password: process.env.DB_PASS,
-      database: 'e-commerce-web-app',
+      database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true
     }),
