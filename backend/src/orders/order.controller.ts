@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { OrderService } from "./order.service";
 import { Customers } from "src/customers/entities/customers.entity";
@@ -14,6 +14,10 @@ export class OrderController {
     @Post('place')
     placeOrder(@Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         return this.orderService.placeOrder(placeOrderDTO);
+    }
+    @Get('myOrders/:id')
+    ViewAllMyOrders(@Param('id', ParseIntPipe) id: number): Promise<Orders[]> {
+        return this.orderService.ViewAllMyOrders(id);
     }
 
     // //kibria

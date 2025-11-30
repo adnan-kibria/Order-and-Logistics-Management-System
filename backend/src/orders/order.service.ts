@@ -72,6 +72,7 @@ export class OrderService {
         // }
     }
 
+    // Munna
     async findCustomer(id: number): Promise<Customers> {
         const customer = await this.customerRepo.findOne({
             where: { id },
@@ -82,6 +83,7 @@ export class OrderService {
         return customer;
     }
 
+    // Munna
     getTotal(orderItems: OrderItemDTO[]): number {
         let total: number = 0;
         for (const oi of orderItems) {
@@ -89,6 +91,17 @@ export class OrderService {
         }
         return total;
     }
+
+    // Munna
+    async ViewAllMyOrders(id: number): Promise<Orders[]> {
+        const customer = await this.findCustomer(id);
+        const orders = await this.orderRepo.find({
+            where: { customer: customer }
+        })
+        return orders;
+
+    }
+
     //kibria
     // async assignDeliveryMan(orderId: number, deliveryManId: number): Promise<Orders> {
     //     const order = await this.orderRepo.findOne({
