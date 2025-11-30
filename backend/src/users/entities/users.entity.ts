@@ -2,6 +2,7 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Customers } from "../../customers/entities/customers.entity";
 import { DeliveryMen } from "./deliverymen.entity";
+import { InventoryManager } from "./inventory-manager.entity";
 
 // export enum UserRole {
 //     CUSTOMER = 'customer',
@@ -32,4 +33,7 @@ export class Users {
 
     @OneToOne(() => DeliveryMen, deliveryman => deliveryman.user)
     deliveryman: DeliveryMen
+
+    @OneToOne(() => InventoryManager, inventorymanager => inventorymanager.user)
+    inventorymanager: InventoryManager
 }
