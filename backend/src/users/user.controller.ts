@@ -1,8 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Users } from './entities/users.entity';
 import { CreateUser } from './dto/create-user.dto';
+import { CreateDeliverymanDto } from 'src/deliveryman/dto/create-deliveryman.dto';
+import { CreateInventoryManagerDto } from 'src/inventory-manager/dto/create-inventory-manager.dto';
 
 @Controller('users')
 export class UserController {
@@ -10,9 +12,11 @@ export class UserController {
 
     @Post('create')
     async createUser(
-        @Body() user: CreateUser
+        @Body() user: CreateUser,
+        @Body() deliveryMan : CreateDeliverymanDto,
+        @Body() inventoryManager : CreateInventoryManagerDto    
     ): Promise<Users> {
-        return this.userService.createUser(user);
+        return this.userService.createUser(user, deliveryMan, inventoryManager);
     }
 
     @Get()
@@ -23,5 +27,11 @@ export class UserController {
     @Get(':id')
     async getUserById(@Param('id') id: string): Promise<Users | null> {
         return this.userService.findById(id);
+    }
+
+    //kibria
+    @Delete('delete-user/:email')
+    async deleteUser(@Param('email') email: string): Promise<{message: string}> {
+        return this.userService.deleteUser(email);
     }
 }
