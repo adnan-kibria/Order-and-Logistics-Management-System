@@ -20,7 +20,8 @@ export class OrderService {
         @InjectRepository(Customers) private readonly customerRepo: Repository<Customers>,
         @InjectRepository(DeliveryMen) private readonly deliverymenRepo: Repository<DeliveryMen>,
         @InjectRepository(OrderStatuses) private readonly orderStatusRepo: Repository<OrderStatuses>) { }
-
+    
+    //Munna 
     async placeOrder(placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         const { customerId, orderItems, shippingCharge } = placeOrderDTO;
         const productTotal: number = this.getTotal(orderItems);
@@ -119,6 +120,7 @@ export class OrderService {
         })
     }
 
+    // Munna
     async viewCancelledOrders(cId: number): Promise<Orders[]> {
         const customer = await this.customerRepo.findOneBy({ id: cId })
         if (!customer) throw new Error('null customer')
@@ -133,11 +135,6 @@ export class OrderService {
             relations: ['orderStatus']
         });
     }
-    // Munna
-    // async cancelOrderByCustomer(oId: number): Promise<Orders> {
-    //     const existingOrder = await this.orderRepo.findOne({ where: { id: oId } });
-    //     existingOrder?.orderStatus = this.orderDetailsRepo.findOne({ where: { id: 4 } })
-    // }
 
     //kibria
     // async assignDeliveryMan(orderId: number, deliveryManId: number): Promise<Orders> {

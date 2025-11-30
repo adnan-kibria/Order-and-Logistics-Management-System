@@ -63,4 +63,20 @@ export class CustomersService {
 
 
     }
+
+    // Munna
+
+    async changeEmail(cId: number, newEmail: string): Promise<string> {
+        const customer = await this.customerRepo.findOne(
+            {
+                where: { id: cId },
+                relations: ['user'],
+            }
+        );
+        if (!customer) throw new Error('null customer')
+        customer.user.email = newEmail;
+        await this.userRepo.save(customer.user);
+
+        return `email has changed to : ${customer.user.email}`;
+    }
 }
