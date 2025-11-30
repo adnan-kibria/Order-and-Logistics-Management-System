@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
+import * as bcrypt from 'bcrypt'
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Customers } from 'src/customers/entities/customers.entity';
@@ -19,9 +20,11 @@ export class CustomersService {
     async register(customer: CreateCustomer): Promise<Customers> {
         const { address } = customer;
         const { email, password, name, phone } = customer;
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt)
         const user: CreateUser = {
             email: email,
-            password: password,
+            password: hashedPassword,
             role: 'customer'
         }
         const u = this.userRepo.create(user);
