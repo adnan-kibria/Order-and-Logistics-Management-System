@@ -6,9 +6,10 @@ import { Users } from "./entities/users.entity";
 import { DeliveryMen } from "./entities/deliverymen.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
+import { InventoryManager } from "./entities/inventory-manager.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ Users, DeliveryMen])],
+    imports: [TypeOrmModule.forFeature([ Users, DeliveryMen, InventoryManager ])],
     controllers: [UserController],
     providers: [UserService],
     exports: [UserService]

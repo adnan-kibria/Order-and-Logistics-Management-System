@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Customers } from "../../customers/entities/customers.entity";
 import { DeliveryMen } from "./deliverymen.entity";
+import { InventoryManager } from "./inventory-manager.entity";
 
 // export enum UserRole {
 //     CUSTOMER = 'customer',
@@ -11,6 +12,7 @@ import { DeliveryMen } from "./deliverymen.entity";
 
 
 @Entity('users')
+@Unique(['email'])
 export class Users {
     @PrimaryGeneratedColumn('uuid')
     userId: string;   // UUID primary key
@@ -32,4 +34,7 @@ export class Users {
 
     @OneToOne(() => DeliveryMen, deliveryman => deliveryman.user)
     deliveryman: DeliveryMen
+
+    @OneToOne(() => InventoryManager, inventorymanager => inventorymanager.user)
+    inventorymanager: InventoryManager
 }
