@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-catch */
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 /* eslint-disable prettier/prettier */
 import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
@@ -50,61 +49,67 @@ export class OrderService {
     }
     //Munna 
     async placeOrder(placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
-        try {
-            const { customerId, orderItems, shippingCharge } = placeOrderDTO;
-            const productTotal: number = this.getTotal(orderItems);
-            const total: number = productTotal + shippingCharge;
-            // console.log(productTotal, total)
-            const customer = await this.findCustomer(customerId);
+        const { customerId, orderItems, shippingCharge } = placeOrderDTO;
+        const productTotal: number = this.getTotal(orderItems);
+        const total: number = productTotal + shippingCharge;
+        // console.log(productTotal, total)
+        const customer = await this.findCustomer(customerId);
 
-            const orderStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 1 } })
+        const orderStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 1 } })
 
-            if (orderStatus) {
-                const placeOrder = {
-                    productTotal: productTotal,
-                    total: total,
-                    shippingCharge: shippingCharge,
-                    customer: customer,
-                    orderStatus: orderStatus
+        if (orderStatus) {
+            const placeOrder = {
+                productTotal: productTotal,
+                total: total,
+                shippingCharge: shippingCharge,
+                customer: customer,
+                orderStatus: orderStatus
 
-                }
-                const o = this.orderRepo.create(placeOrder);
-                const placedOrder = await this.orderRepo.save(o);
-                // let od = []
-                for (const oi of orderItems) {
-                    const od = this.orderDetailsRepo.create({
-                        product: oi.product,
-                        order: placedOrder,
-                        orderPrice: oi.orderPrice,
-                        qty: oi.qty
-                    })
-                    await this.orderDetailsRepo.save(od);
-
-                }
-                await this.sendEmail("habiburmunna0@gmail.com", placeOrderDTO)
-                return placedOrder;
             }
-            throw new Error('Error')
+            const o = this.orderRepo.create(placeOrder);
+            const placedOrder = await this.orderRepo.save(o);
+            // let od = []
+            for (const oi of orderItems) {
+                const od = this.orderDetailsRepo.create({
+                    product: oi.product,
+                    order: placedOrder,
+                    orderPrice: oi.orderPrice,
+                    qty: oi.qty
+                })
+                await this.orderDetailsRepo.save(od);
+
+            }
+            await this.sendEmail("habiburmunna0@gmail.com", placeOrderDTO)
+            return placedOrder;
         }
-        catch (error) {
-            throw error;
-        }
+        throw new Error('Error')
+
+        // {
+
+        //     "productTotal": 2500.0,
+        //         "total": 2600.0,
+        //             "shippingCharge": 100.0,
+        //                 "customer": {
+        //         "id": 3,
+        //             "name": "John Doe",
+        //                 "phone": "01712345678"
+        //     },
+        //     "orderStatus": {
+        //         "id": 2,
+        //             "status": "Delivered"
+        //     },
+        // }
     }
 
     // Munna
     async findCustomer(id: number): Promise<Customers> {
-        try {
-            const customer = await this.customerRepo.findOne({
-                where: { id },
-            });
-            if (!customer) {
-                throw new Error('Customer not Exist');
-            }
-            return customer;
+        const customer = await this.customerRepo.findOne({
+            where: { id },
+        });
+        if (!customer) {
+            throw new Error('Customer not Exist');
         }
-        catch (error) {
-            throw error
-        }
+        return customer;
     }
 
     // Munna
@@ -118,79 +123,60 @@ export class OrderService {
 
     // Munna
     async viewAllMyOrders(id: number): Promise<Orders[]> {
-        try {
-            const customer = await this.findCustomer(id);
-            const orders = await this.orderRepo.find({
-                where: { customer: customer }
-            })
-            return orders;
-        } catch (error) {
-            throw error;
-        }
+        const customer = await this.findCustomer(id);
+        const orders = await this.orderRepo.find({
+            where: { customer: customer }
+        })
+        return orders;
 
     }
 
     // Munna
     async trackOrders(cId: number): Promise<Orders[]> {
-        try {
-            const customer = await this.customerRepo.findOneBy({ id: cId })
-            if (!customer) throw new Error('error')
+        const customer = await this.customerRepo.findOneBy({ id: cId })
+        if (!customer) throw new Error('error')
 
-            return await this.orderRepo.find({
-                where: {
-                    customer: customer,
-                    orderStatus: {
-                        id: In([1, 2, 3, 5])
-                    }
+        return await this.orderRepo.find({
+            where: {
+                customer: customer,
+                orderStatus: {
+                    id: In([1, 2, 3, 5])
+                }
 
-                },
-                relations: ['orderStatus']
-            })
-        }
-        catch (error) {
-            throw error;
-        }
+            },
+            relations: ['orderStatus']
+        })
     }
 
     // Munna
     async viewCancelledOrders(cId: number): Promise<Orders[]> {
-        try {
-            const customer = await this.customerRepo.findOneBy({ id: cId })
-            if (!customer) throw new Error('null customer')
+        const customer = await this.customerRepo.findOneBy({ id: cId })
+        if (!customer) throw new Error('null customer')
 
-            return await this.orderRepo.find({
-                where: {
-                    customer: customer,
-                    orderStatus: {
-                        id: 4
-                    }
-                },
-                relations: ['orderStatus']
-            });
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.orderRepo.find({
+            where: {
+                customer: customer,
+                orderStatus: {
+                    id: 4
+                }
+            },
+            relations: ['orderStatus']
+        });
     }
     // Munna
     async cancelOrderByCustomer(oId: number): Promise<Orders> {
-        try {
-            const existingOrder: Orders | null = await this.orderRepo.findOne({
-                where: { id: oId },
-                relations: ['orderStatus'],
+        const existingOrder: Orders | null = await this.orderRepo.findOne({
+            where: { id: oId },
+            relations: ['orderStatus'],
 
-            })
-            if (!existingOrder) throw new Error('no order exist')
-            existingOrder.orderStatus.id = 4; // 4 = cancelled by customer
-            existingOrder.orderStatus.status = 'Cancelled By Customer'; // 4 = cancelled by customer
-            existingOrder.cancelledAt = new Date();
-            existingOrder.cancelledBy = 'Customer'
+        })
+        if (!existingOrder) throw new Error('no order exist')
+        existingOrder.orderStatus.id = 4; // 4 = cancelled by customer
+        existingOrder.orderStatus.status = 'Cancelled By Customer'; // 4 = cancelled by customer
+        existingOrder.cancelledAt = new Date();
+        existingOrder.cancelledBy = 'Customer'
 
-            return await this.orderRepo.save(existingOrder);
-        }
-        catch (error) {
-            throw error;
-        }
+        return await this.orderRepo.save(existingOrder);
 
     }
 
