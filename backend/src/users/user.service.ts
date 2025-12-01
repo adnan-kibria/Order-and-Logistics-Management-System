@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entities/users.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateUser } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateDeliverymanDto } from 'src/deliveryman/dto/create-deliveryman.dto';
@@ -12,14 +12,24 @@ import { DeliveryMen } from './entities/deliverymen.entity';
 import { InventoryManager } from './entities/inventory-manager.entity';
 import { InventoryManagerInterface } from 'src/inventory-manager/interface/inventory-manager.interface';
 import { del } from 'superagent';
+import { Customers } from 'src/customers/entities/customers.entity';
+import { Orders } from 'src/orders/entities/orders.entity';
+
+const USER_ROLES = {
+    CUSTOMER: 'customer',
+    DELIVERYMAN: 'deliveryman',
+    INVENTORYMANAGER: 'inventorymanager',
+    ADMIN: 'admin',
+};
 
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(Users)
-        private readonly userRepository: Repository<Users>,
+        @InjectRepository(Users) private readonly userRepository: Repository<Users>,
         @InjectRepository(DeliveryMen) private readonly deliveryManRepository: Repository<DeliveryMen>,
-        @InjectRepository(InventoryManager) private readonly inventoryManagerRepository: Repository<InventoryManager>
+        @InjectRepository(InventoryManager) private readonly inventoryManagerRepository: Repository<InventoryManager>,
+        @InjectRepository(Customers) private readonly customerRepo: Repository<Customers>,
+        @InjectRepository(Orders) private readonly orderRepository: Repository<Orders>,
     ) { }
 
     //kibria
@@ -93,5 +103,66 @@ export class UserService {
         }
         await this.userRepository.remove(user);
         return { message: 'User deleted successfully' };
+    }
+
+    async getProfileByAdmin(userId: string): Promise<any> {
+        const baseUser = await this.userRepository.findOne({
+            where: { userId },
+            select: ['userId', 'email', 'role'],
+        });
+
+        if (!baseUser) {
+            throw new NotFoundException(`User with ID ${userId} not found.`);
+        }
+
+        let roleSpecificData: any = {};
+
+        switch (baseUser.role) {
+            case USER_ROLES.CUSTOMER:
+                roleSpecificData = await this.customerRepo.findOne({
+                    where: { user: { userId: baseUser.userId } },
+                    relations: ['shippingAddress'],
+                });
+                
+                if (roleSpecificData) {
+                    const orderCount = await this.orderRepository.count({
+                        where: { customer: { id: roleSpecificData.id } },
+                    });
+                    roleSpecificData.totalOrders = orderCount;
+                }
+                
+                break;
+
+            case USER_ROLES.DELIVERYMAN:
+                roleSpecificData = await this.deliveryManRepository.findOne({
+                    where: { user: { userId: baseUser.userId } },
+                    relations: ['order'],
+                });
+                
+                if (roleSpecificData) {
+                    const completedDeliveries = await this.orderRepository.count({
+                        where: { deliveryman: { id: roleSpecificData.id }, deliveredAt: new Date() },
+                    });
+                    roleSpecificData.deliveriesCompleted = completedDeliveries;
+                    delete roleSpecificData.order; 
+                }
+                break;
+
+            case USER_ROLES.INVENTORYMANAGER:
+                roleSpecificData = await this.inventoryManagerRepository.findOne({
+                    where: { user: { userId: baseUser.userId } },
+                });
+
+                break;
+
+            default:
+                roleSpecificData = { details: `Base user role: ${baseUser.role}` };
+                break;
+        }
+
+        return {
+            ...baseUser,
+            profile: roleSpecificData || null,
+        };
     }
 }

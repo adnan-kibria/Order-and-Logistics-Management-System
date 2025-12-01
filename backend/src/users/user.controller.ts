@@ -34,4 +34,9 @@ export class UserController {
     async deleteUser(@Param('email') email: string): Promise<{message: string}> {
         return this.userService.deleteUser(email);
     }
+
+    @Get('admin/:userId')
+    async viewUserProfile(@Param('user_id') user_id: string): Promise<any> {
+        return this.userService.getProfileByAdmin(user_id);
+    }
 }
