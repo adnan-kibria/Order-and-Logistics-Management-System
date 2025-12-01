@@ -1,6 +1,17 @@
+import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
+
 export class CreateDeliverymanDto {
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+
+  @IsString()
+  vehicleType: string;
 }

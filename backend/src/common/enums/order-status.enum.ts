@@ -3,4 +3,5 @@ export const enum OrderStatus {
     CANCELLED = 'Oder Cancelled',
     ASSIGNED = 'Delivery Man Assigned',
     CONFIRMED = 'Order Confirmed',
+    ON_THE_WAY = 'On The Way',
 }
