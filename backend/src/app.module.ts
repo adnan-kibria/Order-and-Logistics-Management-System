@@ -15,7 +15,7 @@ import { InventoryManagerModule } from './inventory-manager/inventory-manager.mo
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5432,
+      port: 7000,
       username: 'postgres',
       password: 'admin',
       database: 'e-commerce-web-app',
