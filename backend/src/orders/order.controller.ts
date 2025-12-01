@@ -6,6 +6,8 @@ import { OrderService } from "./order.service";
 import { Customers } from "src/customers/entities/customers.entity";
 import { PlaceOrderDTO } from "./dto/place-order.dto";
 import { AuthGuard } from "src/auth/auth.guard";
+import { Roles } from "src/common/decorators/roles.decorator";
+import { Role } from "src/common/enums/role.enum";
 
 @Controller('order')
 export class OrderController {
@@ -14,6 +16,7 @@ export class OrderController {
     // Munna
     @UsePipes(new ValidationPipe())
     @UseGuards(AuthGuard)
+    @Roles(Role.Customer)
     @Post('place')
     placeOrder(@Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         return this.orderService.placeOrder(placeOrderDTO);
