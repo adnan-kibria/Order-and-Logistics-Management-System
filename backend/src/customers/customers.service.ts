@@ -11,11 +11,26 @@ import { CreateUser } from 'src/users/dto/create-user.dto';
 import { CustomerInterface } from './interface/create-customer.interface';
 import { Users } from 'src/users/entities/users.entity';
 import { ShippingAddresses } from 'src/shipping-addresses/entities/shipping-addresses.entity';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class CustomersService {
-    constructor(@InjectRepository(Customers) private readonly customerRepo: Repository<Customers>,
-        @InjectRepository(Users) private readonly userRepo: Repository<Users>, @InjectRepository(ShippingAddresses) private readonly shippingAddressRepo: Repository<ShippingAddresses>) { }
+    constructor(
+        @InjectRepository(Customers) private readonly customerRepo: Repository<Customers>,
+        @InjectRepository(Users) private readonly userRepo: Repository<Users>,
+        @InjectRepository(ShippingAddresses) private readonly shippingAddressRepo: Repository<ShippingAddresses>,
+        private readonly mailerService: MailerService) { }
+
+    async sendEmail(userEmail: string, userId: string) {
+        await this.mailerService.sendMail({
+            to: userEmail,
+            subject: 'Welcome to our app!',
+            template: './welcome', // path to template file
+            context: {             // variables for template
+                userId: userId,
+            },
+        });
+    }
 
     // Munna
     async register(customer: CreateCustomer): Promise<Customers> {
@@ -42,7 +57,9 @@ export class CustomersService {
                 shippingAddress: addressCreated
             }
             const newCustomer = this.customerRepo.create(c)
-            return await this.customerRepo.save(newCustomer);
+            const createdCustomer = await this.customerRepo.save(newCustomer);
+            await this.sendEmail(email, userCreated.userId);
+            return createdCustomer;
 
         } catch (error) {
             if (error?.code === '23505') {
