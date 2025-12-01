@@ -1,16 +1,19 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, UsePipes } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { OrderService } from "./order.service";
 import { Customers } from "src/customers/entities/customers.entity";
 import { PlaceOrderDTO } from "./dto/place-order.dto";
+import { AuthGuard } from "src/auth/auth.guard";
 
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService: OrderService) { }
 
     // Munna
+    @UsePipes(new ValidationPipe())
+    @UseGuards(AuthGuard)
     @Post('place')
     placeOrder(@Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         return this.orderService.placeOrder(placeOrderDTO);
@@ -65,7 +68,7 @@ export class OrderController {
     }
     //kibria
     @Get('total-sales/:filter')
-    getTotalSales(@Param('filter') filter: string,): Promise<{ total: number }> { 
+    getTotalSales(@Param('filter') filter: string,): Promise<{ total: number }> {
         return this.orderService.getTotalSales(filter);
     }
 }
