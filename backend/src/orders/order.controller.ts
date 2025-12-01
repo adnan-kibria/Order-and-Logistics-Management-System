@@ -59,7 +59,10 @@ export class OrderController {
     }
 
     //kibria
-    @Patch()
+    @Patch('process-order/:orderId')
+    processOrder(@Param('orderId') orderId: number): Promise<Orders> {
+        return this.orderService.processOrder(orderId);
+    }
     //kibria
     @Get('total-sales/:filter')
     getTotalSales(@Param('filter') filter: string,): Promise<{ total: number }> { 

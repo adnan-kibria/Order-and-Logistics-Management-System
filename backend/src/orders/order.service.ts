@@ -233,7 +233,31 @@ export class OrderService {
         return await this.orderRepo.save(order);
     }
 
-    // //kibria
+    //kibria
+    async processOrder(orderId: number): Promise<Orders> {
+        const order = await this.orderRepo.findOne({
+            where: { id: orderId },
+            relations : ['orderStatus']
+        })
+        if (!order) throw new BadRequestException('Order not found');
+
+        if (order.orderStatus.id === 9 || order.orderStatus.id === 7 || order.orderStatus.id === 8) {
+            throw new BadRequestException('Delivered or cancelled or on the way order cannot be processed.');
+        }
+        const processingStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 5 } }); 
+
+        if(order.orderStatus.id === 4){
+            if (!processingStatus) {
+                throw new InternalServerErrorException('Processing status (ID 5) not found in DB');
+            } else{
+                order.orderStatus = processingStatus;
+            }
+        }
+
+        return await this.orderRepo.save(order);
+    }
+
+    //kibria
     async getTotalSales(filter: string): Promise<{ total: number }> {
         let date = new Date();
         const now = new Date();
