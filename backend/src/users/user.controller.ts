@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Users } from './entities/users.entity';
 import { CreateUser } from './dto/create-user.dto';
@@ -11,6 +11,7 @@ export class UserController {
     constructor(private readonly userService: UserService) { }
 
     @Post('create')
+    @UsePipes(new ValidationPipe({ whitelist: true }))
     async createUser(
         @Body() user: CreateUser,
         @Body() deliveryMan : CreateDeliverymanDto,
