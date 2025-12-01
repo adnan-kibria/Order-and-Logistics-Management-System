@@ -8,11 +8,13 @@ import { CreateInventoryManagerDto } from 'src/inventory-manager/dto/create-inve
 import { CustomerGuard } from 'src/auth/customer.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
+import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
+    @UseGuards(AdminGuard)
     @Post('create')
     @UsePipes(new ValidationPipe({ whitelist: true }))
     async createUser(
@@ -34,14 +36,14 @@ export class UserController {
     }
 
     //kibria
-    @UseGuards(CustomerGuard)
+    @UseGuards(AdminGuard)
     @Delete('delete-user/:email')
     async deleteUser(@Param('email') email: string): Promise<{message: string}> {
         return this.userService.deleteUser(email);
     }
 
     //kibria
-    @UseGuards(CustomerGuard)
+    @UseGuards(AdminGuard)
     @Roles(Role.Admin)
     @Get('admin/:userId')
     async viewUserProfile(@Param('user_id') user_id: string): Promise<any> {
