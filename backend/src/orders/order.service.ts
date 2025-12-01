@@ -11,6 +11,7 @@ import { SalesFilter } from "src/common/enums/sales-filter.enum";
 import { Products } from "src/products/entities/products.entity";
 import { OrderItemDTO, PlaceOrderDTO } from "./dto/place-order.dto";
 import { OrderDetails } from "./entities/order-details.entity";
+import { MailerService } from "@nestjs-modules/mailer";
 
 @Injectable()
 export class OrderService {
@@ -19,8 +20,33 @@ export class OrderService {
         @InjectRepository(OrderDetails) private readonly orderDetailsRepo: Repository<OrderDetails>,
         @InjectRepository(Customers) private readonly customerRepo: Repository<Customers>,
         @InjectRepository(DeliveryMen) private readonly deliverymenRepo: Repository<DeliveryMen>,
-        @InjectRepository(OrderStatuses) private readonly orderStatusRepo: Repository<OrderStatuses>) { }
+        @InjectRepository(OrderStatuses) private readonly orderStatusRepo: Repository<OrderStatuses>,
+        private readonly mailerService: MailerService) { }
 
+    async sendEmail(userEmail: string, order: PlaceOrderDTO) {
+        await this.mailerService.sendMail({
+            to: userEmail,
+            subject: `Order Confirmation - Customer #${order.customerId}`,
+            template: './order-confirmation', // path to your template file
+            html: `<h1>Order Confirmation</h1>
+         <p>Customer ID: ${order.customerId}</p>
+         <p>Total: ${order.orderItems.reduce((sum, i) => sum + i.orderPrice * i.qty, order.shippingCharge)}</p>`,
+
+            context: {
+                customerId: order.customerId,
+                shippingCharge: order.shippingCharge,
+                orderItems: order.orderItems.map(item => ({
+                    productName: item.product.name,   // assuming Products entity has a name field
+                    qty: item.qty,
+                    price: item.orderPrice,
+                })),
+                totalAmount: order.orderItems.reduce(
+                    (sum, item) => sum + item.orderPrice * item.qty,
+                    order.shippingCharge
+                ),
+            },
+        });
+    }
     //Munna 
     async placeOrder(placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         const { customerId, orderItems, shippingCharge } = placeOrderDTO;
@@ -28,6 +54,7 @@ export class OrderService {
         const total: number = productTotal + shippingCharge;
         // console.log(productTotal, total)
         const customer = await this.findCustomer(customerId);
+
         const orderStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 1 } })
 
         if (orderStatus) {
@@ -52,6 +79,7 @@ export class OrderService {
                 await this.orderDetailsRepo.save(od);
 
             }
+            await this.sendEmail("habiburmunna0@gmail.com", placeOrderDTO)
             return placedOrder;
         }
         throw new Error('Error')
@@ -173,12 +201,12 @@ export class OrderService {
             throw new BadRequestException('Cannot assign a delivery man to a delivered or cancelled order.');
         }
 
-        const assignedDeliveryMan: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 8 } }); 
-    
+        const assignedDeliveryMan: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 8 } });
+
         if (!assignedDeliveryMan) {
             throw new InternalServerErrorException('Confirmed status (ID 8) not found in DB');
         }
-        
+
         order.orderStatus = assignedDeliveryMan;
 
         return await this.orderRepo.save(order);
@@ -188,23 +216,23 @@ export class OrderService {
     async confirmOrder(orderId: number): Promise<Orders> {
         const order = await this.orderRepo.findOne({
             where: { id: orderId },
-            relations : ['orderStatus']
+            relations: ['orderStatus']
         })
 
         if (!order) throw new BadRequestException('Order not found');
 
-        if (order.orderStatus.id === 9 || order.orderStatus.id === 7 ||order.orderStatus.id === 8) {
+        if (order.orderStatus.id === 9 || order.orderStatus.id === 7 || order.orderStatus.id === 8) {
             throw new BadRequestException('Order is already delivered or cancelled or on the way, cannot confirm.');
         }
 
-        const confirmedStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 6 } }); 
-    
+        const confirmedStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 6 } });
+
         if (!confirmedStatus) {
             throw new InternalServerErrorException('Confirmed status (ID 6) not found in DB');
         }
-        
+
         order.orderStatus = confirmedStatus;
-    
+
         return await this.orderRepo.save(order);
     }
 
@@ -212,7 +240,7 @@ export class OrderService {
     async cancelOrder(orderId: number): Promise<Orders> {
         const order = await this.orderRepo.findOne({
             where: { id: orderId },
-            relations : ['orderStatus']
+            relations: ['orderStatus']
         })
         if (!order) throw new BadRequestException('Order not found');
 
@@ -220,7 +248,7 @@ export class OrderService {
             throw new BadRequestException('Delivered order cannot be cancelled.');
         }
 
-        const cancelledStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 7 } }); 
+        const cancelledStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 7 } });
 
         if (!cancelledStatus) {
             throw new InternalServerErrorException('Cancelled status (ID 7) not found in DB');
@@ -237,19 +265,19 @@ export class OrderService {
     async processOrder(orderId: number): Promise<Orders> {
         const order = await this.orderRepo.findOne({
             where: { id: orderId },
-            relations : ['orderStatus']
+            relations: ['orderStatus']
         })
         if (!order) throw new BadRequestException('Order not found');
 
         if (order.orderStatus.id === 9 || order.orderStatus.id === 7 || order.orderStatus.id === 8) {
             throw new BadRequestException('Delivered or cancelled or on the way order cannot be processed.');
         }
-        const processingStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 5 } }); 
+        const processingStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 5 } });
 
-        if(order.orderStatus.id === 4){
+        if (order.orderStatus.id === 4) {
             if (!processingStatus) {
                 throw new InternalServerErrorException('Processing status (ID 5) not found in DB');
-            } else{
+            } else {
                 order.orderStatus = processingStatus;
             }
         }
@@ -276,8 +304,8 @@ export class OrderService {
                 throw new BadRequestException('Invalid sales filter. Use daily, weekly, or monthly.');
         }
 
-        const deliveredStatusId = 9; 
-        
+        const deliveredStatusId = 9;
+
         const totalSales = await this.orderRepo.createQueryBuilder('orders')
             .select('SUM(orders.total)', 'total')
             .where('orders.date >= :date', { date: date.toISOString() })
