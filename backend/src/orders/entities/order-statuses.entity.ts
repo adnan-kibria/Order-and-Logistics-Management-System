@@ -14,5 +14,6 @@ export class OrderStatuses {
 
     @OneToMany(() => Orders, orders => orders.orderStatus)
     orders: Orders[];
+    // static status: number;
 
 }
