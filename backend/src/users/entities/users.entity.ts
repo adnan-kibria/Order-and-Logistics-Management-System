@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Customers } from "../../customers/entities/customers.entity";
 import { DeliveryMen } from "./deliverymen.entity";
 import { InventoryManager } from "./inventory-manager.entity";
@@ -12,6 +12,7 @@ import { InventoryManager } from "./inventory-manager.entity";
 
 
 @Entity('users')
+@Unique(['email'])
 export class Users {
     @PrimaryGeneratedColumn('uuid')
     userId: string;   // UUID primary key

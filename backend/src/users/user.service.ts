@@ -23,11 +23,11 @@ export class UserService {
     ) { }
 
     //kibria
-    async createUser(user: CreateUser, deliveryMan : CreateDeliverymanDto, inventoryManager : CreateInventoryManagerDto): Promise<Users> {
-        const exist = await this.userRepository.findOne({ 
-            where: { 
+    async createUser(user: CreateUser, deliveryMan: CreateDeliverymanDto, inventoryManager: CreateInventoryManagerDto): Promise<Users> {
+        const exist = await this.userRepository.findOne({
+            where: {
                 email: user.email
-             }
+            }
         });
         if (exist) throw new BadRequestException('Email already exists');
 
@@ -40,8 +40,8 @@ export class UserService {
         });
         const saveUser = await this.userRepository.save(u);
 
-        if(user.role === 'deliveryman') {
-            const dm : DeliverymanInterface = {
+        if (user.role === 'deliveryman') {
+            const dm: DeliverymanInterface = {
                 name: deliveryMan.name,
                 phone: deliveryMan.phone,
                 user: saveUser
@@ -49,8 +49,8 @@ export class UserService {
             const addDeliveryMan = this.deliveryManRepository.create(dm);
             await this.deliveryManRepository.save(addDeliveryMan);
         }
-        else{
-            const inv : InventoryManagerInterface = {
+        else {
+            const inv: InventoryManagerInterface = {
                 name: inventoryManager.name,
                 phone: inventoryManager.phone,
                 user: saveUser
@@ -69,25 +69,29 @@ export class UserService {
         return await this.userRepository.findOne({ where: { userId: id } });
     }
 
-    async findOne(email): Promise<Users | null> {
-        return await this.userRepository.findOne({ where: email })
+    async findOne(userEmail: string): Promise<Users | null> {
+        return await this.userRepository.findOne({
+            where: {
+                email: userEmail
+            }
+        })
     }
 
     //kibria
-    async deleteUser(email: string): Promise<{message: string}> {
-        const user =  await this.userRepository.findOne({
+    async deleteUser(email: string): Promise<{ message: string }> {
+        const user = await this.userRepository.findOne({
             where: { email },
             relations: ['deliveryman', 'inventorymanager']
         });
-        if(!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('User not found');
 
-        if(user.deliveryman){
+        if (user.deliveryman) {
             await this.deliveryManRepository.remove(user.deliveryman);
         }
-        else{
+        else {
             await this.inventoryManagerRepository.remove(user.inventorymanager);
         }
         await this.userRepository.remove(user);
-        return {message: 'User deleted successfully' };
+        return { message: 'User deleted successfully' };
     }
 }

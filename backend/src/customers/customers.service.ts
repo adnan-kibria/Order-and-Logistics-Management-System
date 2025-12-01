@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
 import * as bcrypt from 'bcrypt'
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Customers } from 'src/customers/entities/customers.entity';
 import { Repository } from 'typeorm';
@@ -18,29 +19,38 @@ export class CustomersService {
 
     // Munna
     async register(customer: CreateCustomer): Promise<Customers> {
-        const { address } = customer;
-        const { email, password, name, phone } = customer;
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(password, salt)
-        const user: CreateUser = {
-            email: email,
-            password: hashedPassword,
-            role: 'customer'
-        }
-        const u = this.userRepo.create(user);
-        const sa = this.shippingAddressRepo.create(address);
-        const userCreated = await this.userRepo.save(u);
-        const addressCreated = await this.shippingAddressRepo.save(sa);
+        try {
+            const { address } = customer;
+            const { email, password, name, phone } = customer;
+            const salt = await bcrypt.genSalt();
+            const hashedPassword = await bcrypt.hash(password, salt)
+            const user: CreateUser = {
+                email: email,
+                password: hashedPassword,
+                role: 'customer'
+            }
+            const u = this.userRepo.create(user);
+            const sa = this.shippingAddressRepo.create(address);
+            const userCreated = await this.userRepo.save(u);
+            const addressCreated = await this.shippingAddressRepo.save(sa);
 
 
-        const c: CustomerInterface = {
-            name: name,
-            phone: phone,
-            user: userCreated,
-            shippingAddress: addressCreated
+            const c: CustomerInterface = {
+                name: name,
+                phone: phone,
+                user: userCreated,
+                shippingAddress: addressCreated
+            }
+            const newCustomer = this.customerRepo.create(c)
+            return await this.customerRepo.save(newCustomer);
+
+        } catch (error) {
+            if (error?.code === '23505') {
+                // Postgres unique violation
+                throw new ConflictException('Email already exists');
+            }
+            throw error;
         }
-        const newCustomer = this.customerRepo.create(c)
-        return await this.customerRepo.save(newCustomer);
 
     }
     // Munna
@@ -70,16 +80,24 @@ export class CustomersService {
     // Munna
 
     async changeEmail(cId: number, newEmail: string): Promise<string> {
-        const customer = await this.customerRepo.findOne(
-            {
-                where: { id: cId },
-                relations: ['user'],
-            }
-        );
-        if (!customer) throw new Error('null customer')
-        customer.user.email = newEmail;
-        await this.userRepo.save(customer.user);
+        try {
+            const customer = await this.customerRepo.findOne(
+                {
+                    where: { id: cId },
+                    relations: ['user'],
+                }
+            );
+            if (!customer) throw new Error('null customer')
+            customer.user.email = newEmail;
+            await this.userRepo.save(customer.user);
 
-        return `email has changed to : ${customer.user.email}`;
+            return `email has changed to : ${customer.user.email}`;
+        } catch (error) {
+            if (error.code === '501') {
+                throw new InternalServerErrorException();
+            }
+            throw error
+        }
+
     }
 }
