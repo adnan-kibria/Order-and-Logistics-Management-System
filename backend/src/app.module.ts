@@ -10,6 +10,7 @@ import { ShippingAddressModule } from './shipping-addresses/shipping-address.mod
 import { DeliverymanModule } from './deliveryman/deliveryman.module';
 import { InventoryManagerModule } from './inventory-manager/inventory-manager.module';
 import { ConfigModule } from '@nestjs/config';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -17,13 +18,25 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     UserModule, ProductModule, OrderModule, CustomersModule, ShippingAddressModule,
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 465,
+        ignoreTLS: true,
+        secure: true,
+        auth: {
+          user: process.env.MAILER_EMAIL,
+          pass: process.env.MAILER_PASSWORD
+        },
+      }
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 7000,
-      username: 'postgres',
-      password: 'admin',
-      database: 'e-commerce-web-app',
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER_NAME,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true
     }),

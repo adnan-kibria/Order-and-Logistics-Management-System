@@ -15,22 +15,22 @@ export class OrderController {
     placeOrder(@Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         return this.orderService.placeOrder(placeOrderDTO);
     }
-
+    // Munna
     @Get('track/:cId')
     trackOrders(@Param('cId', ParseIntPipe) cId: number): Promise<Orders[]> {
         return this.orderService.trackOrders(cId);
     }
-
+    // Munna
     @Get('allCancelled/:cId')
     viewCancelledOrders(@Param('cId', ParseIntPipe) cId: number): Promise<Orders[]> {
         return this.orderService.viewCancelledOrders(cId)
     }
-
+    // Munna
     @Get('myOrders/:id')
     ViewAllMyOrders(@Param('id', ParseIntPipe) id: number): Promise<Orders[]> {
         return this.orderService.viewAllMyOrders(id);
     }
-
+    // Munna
     @Put('cancelByCustomer/:oId')
     cancelOrderByCustomer(@Param('oId', ParseIntPipe) oId: number): Promise<Orders> {
         return this.orderService.cancelOrderByCustomer(oId);
