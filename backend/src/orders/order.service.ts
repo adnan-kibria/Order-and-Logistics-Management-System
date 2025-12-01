@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Repository } from "typeorm";
@@ -153,70 +153,114 @@ export class OrderService {
     }
 
     //kibria
-    // async assignDeliveryMan(orderId: number, deliveryManId: number): Promise<Orders> {
-    //     const order = await this.orderRepo.findOne({
-    //         where: { id: orderId },
-    //     })
-    //     const deliveryman = await this.deliverymenRepo.findOne({
-    //         where: { id: deliveryManId },
-    //     })
+    async assignDeliveryMan(orderId: number, deliveryManId: number, status_id: number): Promise<Orders> {
+        const order = await this.orderRepo.findOne({
+            where: { id: orderId },
+            relations: ['orderStatus'],
+        })
 
-    //     if (!deliveryman) throw new BadRequestException('Deliveryman not found');
-    //     if (!order) throw new BadRequestException('Order not found');
+        if (!order) throw new BadRequestException('Order not found');
 
-    //     order.deliveryman = deliveryman;
-    //     order.orderStatus.status = OrderStatus.ASSIGNED;
-    //     return await this.orderRepo.save(order);
-    // }
+        const deliveryman = await this.deliverymenRepo.findOne({
+            where: { id: deliveryManId },
+        })
+
+        if (!deliveryman) throw new BadRequestException('Deliveryman not found');
+
+        const newStatus = await this.orderStatusRepo.findOne({
+            where: { id: status_id },
+        })
+
+        if (!newStatus) throw new BadRequestException('Status not found');
+
+        if (order.orderStatus.id === 9 || order.orderStatus.id === 7) {
+            throw new BadRequestException('Cannot assign a delivery man to a delivered or cancelled order.');
+        }
+
+        order.deliveryman = deliveryman;
+        order.orderStatus = newStatus;
+        
+        return await this.orderRepo.save(order);
+    }
 
     //kibria
-    // async confirmOrder(orderId: number): Promise<Orders> {
-    //     const order = await this.orderRepo.findOne({
-    //         where: { id: orderId },
-    //     })
+    async confirmOrder(orderId: number): Promise<Orders> {
+        const order = await this.orderRepo.findOne({
+            where: { id: orderId },
+            relations : ['orderStatus']
+        })
 
-    //     if (!order) throw new BadRequestException('Order not found');
-    //     if (order.orderStatus.status !== OrderStatus.CANCELLED) throw new BadRequestException('Order is already cancelled');
-    //     order.orderStatus.status = OrderStatus.CONFIRMED;
-    //     return await this.orderRepo.save(order);
-    // }
+        if (!order) throw new BadRequestException('Order not found');
+
+        if (order.orderStatus.id === 9 || order.orderStatus.id === 7 ||order.orderStatus.id === 8) {
+            throw new BadRequestException('Order is already delivered or cancelled or on the way, cannot confirm.');
+        }
+
+        const confirmedStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 6 } }); 
+    
+        if (!confirmedStatus) {
+            throw new InternalServerErrorException('Confirmed status (ID 6) not found in DB');
+        }
+        
+        order.orderStatus = confirmedStatus;
+    
+        return await this.orderRepo.save(order);
+    }
+
+    //kibria
+    async cancelOrder(orderId: number): Promise<Orders> {
+        const order = await this.orderRepo.findOne({
+            where: { id: orderId },
+            relations : ['orderStatus']
+        })
+        if (!order) throw new BadRequestException('Order not found');
+
+        if (order.orderStatus.id === 9) {
+            throw new BadRequestException('Delivered order cannot be cancelled.');
+        }
+
+        const cancelledStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 7 } }); 
+
+        if (!cancelledStatus) {
+            throw new InternalServerErrorException('Cancelled status (ID 7) not found in DB');
+        }
+
+        order.orderStatus = cancelledStatus;
+        order.cancelledBy = 'Admin';
+        order.cancelledAt = new Date();
+
+        return await this.orderRepo.save(order);
+    }
 
     // //kibria
-    // async cancelOrder(orderId: number): Promise<Orders> {
-    //     //     const order = await this.orderRepo.findOne({
-    //     //         where: { id: orderId },
-    //     //     })
-    //     //     if (!order) throw new BadRequestException('Order not found');
-    //     //     if (order.orderStatus.status === OrderStatus.DELIVERED) throw new BadRequestException('Delivered order can not be cancelled');
-    //     //     order.orderStatus.status = OrderStatus.CANCELLED;
-    //     //     return await this.orderRepo.save(order);
-    // }
+    async getTotalSales(filter: string): Promise<{ total: number }> {
+        let date = new Date();
+        const now = new Date();
 
-    // // //kibria
-    // async getTotalSales(filter: string): Promise<Orders> {
-    //     // let date = new Date();
-    //     // switch (filter) {
-    //     //     case SalesFilter.DAILY:
-    //     //         date.setDate(date.getDate() - 1);
-    //     //         break;
-    //     //     case SalesFilter.WEEKLY:
-    //     //         date.setDate(date.getDate() - 7);
-    //     //         break;
-    //     //     case SalesFilter.MONTHLY:
-    //     //         date.setMonth(date.getMonth() - 1);
-    //     //         break;
-    //     //     default:
-    //     //         throw new BadRequestException('Invalid sales filter');
-    //     // }
-    //     // // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    //     // const totalSales = await this.orderRepo.createQueryBuilder('orders')
-    //     //     .select('SUM(order.total)', 'total')
-    //     //     .where('order.date >= :date', { date: date.toISOString() })
-    //     //     .andWhere('order.orderStatus = :status', { status: OrderStatus.DELIVERED })
-    //     //     .getRawOne();
+        switch (filter.toLowerCase()) {
+            case SalesFilter.DAILY.toLowerCase():
+                date.setDate(now.getDate() - 1);
+                break;
+            case SalesFilter.WEEKLY.toLowerCase():
+                date.setDate(now.getDate() - 7);
+                break;
+            case SalesFilter.MONTHLY.toLowerCase():
+                date.setMonth(now.getMonth() - 1);
+                break;
+            default:
+                throw new BadRequestException('Invalid sales filter. Use daily, weekly, or monthly.');
+        }
 
-    //     // return totalSales;
-    // }
+        const deliveredStatusId = 9; 
+        
+        const totalSales = await this.orderRepo.createQueryBuilder('orders')
+            .select('SUM(orders.total)', 'total')
+            .where('orders.date >= :date', { date: date.toISOString() })
+            .andWhere('orders.orderStatusId = :statusId', { statusId: deliveredStatusId })
+            .getRawOne() as { total: string };
+
+        return { total: parseFloat(totalSales.total) || 0 };
+    }
 
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, UsePipes } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { OrderService } from "./order.service";
 import { Customers } from "src/customers/entities/customers.entity";
@@ -39,34 +39,28 @@ export class OrderController {
 
 
 
-    // //kibria
-    // @Patch('assign-deliveryman/:orderId/:deliveryManId')
-    // assignDeliveryMan(
-    //     @Param('orderId') orderId: number,
-    //     @Param('deliveryManId',) deliveryManId: number
-    // ): Promise<Orders> {
-    //     return this.orderService.assignDeliveryMan(orderId, deliveryManId);
-    // }
+    //kibria
+    @Patch('assign-deliveryman/:orderId/:deliveryManId')
+    assignDeliveryMan(
+        @Param('orderId', ParseIntPipe) orderId: number,
+        @Param('deliveryManId', ParseIntPipe) deliveryManId: number,
+        @Body('status_id', ParseIntPipe) status_id: number): Promise<Orders> {
+        return this.orderService.assignDeliveryMan(orderId, deliveryManId, status_id);
+    }
 
-    // //kibria
-    // @Patch('confirm-order/:orderId')
-    // confirmOrder(
-    //     @Param('orderId') orderId: number,
-    // ): Promise<Orders> {
-    //     return this.orderService.confirmOrder(orderId);
-    // }
-    // //kibria
-    // @Patch('cancel-order/:orderId')
-    // cancelOrder(
-    //     @Param('orderId') orderId: number,
-    // ): Promise<Orders> {
-    //     return this.orderService.cancelOrder(orderId);
-    // }
-    // //kibria
-    // @Post('total-sales/:filter')
-    // getTotalSales(
-    //     @Param('filter') filter: string,
-    // ): Promise<Orders> {
-    //     return this.orderService.getTotalSales(filter);
-    // }
+    //kibria
+    @Patch('confirm-order/:orderId')
+    confirmOrder(@Param('orderId') orderId: number,): Promise<Orders> {
+        return this.orderService.confirmOrder(orderId);
+    }
+    //kibria
+    @Patch('cancel-order/:orderId')
+    cancelOrder(@Param('orderId') orderId: number): Promise<Orders> {
+        return this.orderService.cancelOrder(orderId);
+    }
+    //kibria
+    @Get('total-sales/:filter')
+    getTotalSales(@Param('filter') filter: string,): Promise<{ total: number }> { 
+        return this.orderService.getTotalSales(filter);
+    }
 }
