@@ -153,7 +153,7 @@ export class OrderService {
     }
 
     //kibria
-    async assignDeliveryMan(orderId: number, deliveryManId: number, status_id: number): Promise<Orders> {
+    async assignDeliveryMan(orderId: number, deliveryManId: number): Promise<Orders> {
         const order = await this.orderRepo.findOne({
             where: { id: orderId },
             relations: ['orderStatus'],
@@ -167,19 +167,20 @@ export class OrderService {
 
         if (!deliveryman) throw new BadRequestException('Deliveryman not found');
 
-        const newStatus = await this.orderStatusRepo.findOne({
-            where: { id: status_id },
-        })
-
-        if (!newStatus) throw new BadRequestException('Status not found');
+        order.deliveryman = deliveryman;
 
         if (order.orderStatus.id === 9 || order.orderStatus.id === 7) {
             throw new BadRequestException('Cannot assign a delivery man to a delivered or cancelled order.');
         }
 
-        order.deliveryman = deliveryman;
-        order.orderStatus = newStatus;
+        const assignedDeliveryMan: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 8 } }); 
+    
+        if (!assignedDeliveryMan) {
+            throw new InternalServerErrorException('Confirmed status (ID 8) not found in DB');
+        }
         
+        order.orderStatus = assignedDeliveryMan;
+
         return await this.orderRepo.save(order);
     }
 

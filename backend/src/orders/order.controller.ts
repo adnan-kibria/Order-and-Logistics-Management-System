@@ -43,9 +43,8 @@ export class OrderController {
     @Patch('assign-deliveryman/:orderId/:deliveryManId')
     assignDeliveryMan(
         @Param('orderId', ParseIntPipe) orderId: number,
-        @Param('deliveryManId', ParseIntPipe) deliveryManId: number,
-        @Body('status_id', ParseIntPipe) status_id: number): Promise<Orders> {
-        return this.orderService.assignDeliveryMan(orderId, deliveryManId, status_id);
+        @Param('deliveryManId', ParseIntPipe) deliveryManId: number): Promise<Orders> {
+        return this.orderService.assignDeliveryMan(orderId, deliveryManId);
     }
 
     //kibria
@@ -58,6 +57,9 @@ export class OrderController {
     cancelOrder(@Param('orderId') orderId: number): Promise<Orders> {
         return this.orderService.cancelOrder(orderId);
     }
+
+    //kibria
+    @Patch()
     //kibria
     @Get('total-sales/:filter')
     getTotalSales(@Param('filter') filter: string,): Promise<{ total: number }> { 
