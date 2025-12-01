@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
@@ -22,14 +23,19 @@ export class CustomersService {
         private readonly mailerService: MailerService) { }
 
     async sendEmail(userEmail: string, userId: string) {
-        await this.mailerService.sendMail({
-            to: userEmail,
-            subject: 'Welcome to our app!',
-            template: './welcome', // path to template file
-            context: {             // variables for template
-                userId: userId,
-            },
-        });
+        try {
+            await this.mailerService.sendMail({
+                to: userEmail,
+                subject: 'Welcome to our app!',
+                template: './welcome', // path to template file
+                context: {             // variables for template
+                    userId: userId,
+                },
+            });
+        }
+        catch (error) {
+            throw error;
+        }
     }
 
     // Munna
@@ -72,25 +78,32 @@ export class CustomersService {
     }
     // Munna
     async viewProfile(id: number): Promise<Customers | null> {
-        return await this.customerRepo
-            .createQueryBuilder('customer')
-            .leftJoinAndSelect('customer.user', 'user')
-            .leftJoinAndSelect('customer.shippingAddress', 'shippingAddress')
-            .where('customer.id = :id', { id })
-            .select([
-                'customer.id',
-                'customer.name',
-                'customer.phone',
-                'user.userId',
-                'user.email',
-                'user.role',
-                'shippingAddress.id',
-                'shippingAddress.city',
-                'shippingAddress.location',
-                'shippingAddress.details',
-            ])
-            .getOne();
+        try {
+            return await this.customerRepo.findOne({
+                where: { id },
+                relations: ['user', 'shippingAddress'],
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    user: {
+                        userId: true,
+                        email: true,
+                        role: true,
+                    },
+                    shippingAddress: {
+                        id: true,
+                        city: true,
+                        location: true,
+                        details: true,
+                    },
+                },
+            });
 
+        }
+        catch (error) {
+            throw error;
+        }
 
     }
 

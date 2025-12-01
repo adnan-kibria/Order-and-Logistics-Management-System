@@ -7,9 +7,7 @@ import { OrderService } from "./order.service";
 import { PlaceOrderDTO } from "./dto/place-order.dto";
 import { CustomerGuard } from "src/auth/customer.guard";
 import { AdminGuard } from "src/auth/admin.guard";
-// import { Roles } from "src/common/decorators/roles.decorator";
-// import { Role } from "src/common/enums/role.enum";
-
+ 
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService: OrderService) { }
