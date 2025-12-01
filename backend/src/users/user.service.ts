@@ -34,41 +34,47 @@ export class UserService {
 
     //kibria
     async createUser(user: CreateUser, deliveryMan: CreateDeliverymanDto, inventoryManager: CreateInventoryManagerDto): Promise<Users> {
-        const exist = await this.userRepository.findOne({
+        try{
+            const exist = await this.userRepository.findOne({
             where: {
                 email: user.email
             }
-        });
-        if (exist) throw new BadRequestException('Email already exists');
+            });
+            if (exist) throw new BadRequestException('Email already exists');
 
-        const saltRounds = 6;
-        const hashedPassword = await bcrypt.hash(user.password, saltRounds);
-        const u = this.userRepository.create({
-            email: user.email,
-            password: hashedPassword,
-            role: user.role
-        });
-        const saveUser = await this.userRepository.save(u);
+            const saltRounds = 6;
+            const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+            const u = this.userRepository.create({
+                email: user.email,
+                password: hashedPassword,
+                role: user.role
+            });
+            const saveUser = await this.userRepository.save(u);
 
-        if (user.role === 'deliveryman') {
-            const dm: DeliverymanInterface = {
-                name: deliveryMan.name,
-                phone: deliveryMan.phone,
-                user: saveUser
+            if (user.role === 'deliveryman') {
+                const dm: DeliverymanInterface = {
+                    name: deliveryMan.name,
+                    phone: deliveryMan.phone,
+                    user: saveUser
+                }
+                const addDeliveryMan = this.deliveryManRepository.create(dm);
+                await this.deliveryManRepository.save(addDeliveryMan);
             }
-            const addDeliveryMan = this.deliveryManRepository.create(dm);
-            await this.deliveryManRepository.save(addDeliveryMan);
-        }
-        else {
-            const inv: InventoryManagerInterface = {
-                name: inventoryManager.name,
-                phone: inventoryManager.phone,
-                user: saveUser
+            else {
+                const inv: InventoryManagerInterface = {
+                    name: inventoryManager.name,
+                    phone: inventoryManager.phone,
+                    user: saveUser
+                }
+                const addInventoryManager = this.inventoryManagerRepository.create(inv);
+                await this.inventoryManagerRepository.save(addInventoryManager);
             }
-            const addInventoryManager = this.inventoryManagerRepository.create(inv);
-            await this.inventoryManagerRepository.save(addInventoryManager);
+            return saveUser;
         }
-        return saveUser;
+        catch(error){
+            throw error;
+        }
+        
     }
 
     async findAll(): Promise<Users[]> {
@@ -89,80 +95,91 @@ export class UserService {
 
     //kibria
     async deleteUser(email: string): Promise<{ message: string }> {
-        const user = await this.userRepository.findOne({
+        try{
+            const user = await this.userRepository.findOne({
             where: { email },
             relations: ['deliveryman', 'inventorymanager']
-        });
-        if (!user) throw new BadRequestException('User not found');
+            });
+            if (!user) throw new BadRequestException('User not found');
 
-        if (user.deliveryman) {
-            await this.deliveryManRepository.remove(user.deliveryman);
+            if (user.deliveryman) {
+                await this.deliveryManRepository.remove(user.deliveryman);
+            }
+            else {
+                await this.inventoryManagerRepository.remove(user.inventorymanager);
+            }
+            await this.userRepository.remove(user);
+            return { message: 'User deleted successfully' };
         }
-        else {
-            await this.inventoryManagerRepository.remove(user.inventorymanager);
+        catch(error){
+            throw error;
         }
-        await this.userRepository.remove(user);
-        return { message: 'User deleted successfully' };
+        
     }
 
     async getProfileByAdmin(userId: string): Promise<any> {
-        const baseUser = await this.userRepository.findOne({
+        try{
+            const baseUser = await this.userRepository.findOne({
             where: { userId },
             select: ['userId', 'email', 'role'],
-        });
+            });
 
-        if (!baseUser) {
-            throw new NotFoundException(`User with ID ${userId} not found.`);
-        }
+            if (!baseUser) {
+                throw new NotFoundException(`User with ID ${userId} not found.`);
+            }
 
-        let roleSpecificData: any = {};
+            let roleSpecificData: any = {};
 
-        switch (baseUser.role) {
-            case USER_ROLES.CUSTOMER:
-                roleSpecificData = await this.customerRepo.findOne({
-                    where: { user: { userId: baseUser.userId } },
-                    relations: ['shippingAddress'],
-                });
-                
-                if (roleSpecificData) {
-                    const orderCount = await this.orderRepository.count({
-                        where: { customer: { id: roleSpecificData.id } },
+            switch (baseUser.role) {
+                case USER_ROLES.CUSTOMER:
+                    roleSpecificData = await this.customerRepo.findOne({
+                        where: { user: { userId: baseUser.userId } },
+                        relations: ['shippingAddress'],
                     });
-                    roleSpecificData.totalOrders = orderCount;
-                }
-                
-                break;
+                    
+                    if (roleSpecificData) {
+                        const orderCount = await this.orderRepository.count({
+                            where: { customer: { id: roleSpecificData.id } },
+                        });
+                        roleSpecificData.totalOrders = orderCount;
+                    }
+                    
+                    break;
 
-            case USER_ROLES.DELIVERYMAN:
-                roleSpecificData = await this.deliveryManRepository.findOne({
-                    where: { user: { userId: baseUser.userId } },
-                    relations: ['order'],
-                });
-                
-                if (roleSpecificData) {
-                    const completedDeliveries = await this.orderRepository.count({
-                        where: { deliveryman: { id: roleSpecificData.id }, deliveredAt: new Date() },
+                case USER_ROLES.DELIVERYMAN:
+                    roleSpecificData = await this.deliveryManRepository.findOne({
+                        where: { user: { userId: baseUser.userId } },
+                        relations: ['order'],
                     });
-                    roleSpecificData.deliveriesCompleted = completedDeliveries;
-                    delete roleSpecificData.order; 
-                }
-                break;
+                    
+                    if (roleSpecificData) {
+                        const completedDeliveries = await this.orderRepository.count({
+                            where: { deliveryman: { id: roleSpecificData.id }, deliveredAt: new Date() },
+                        });
+                        roleSpecificData.deliveriesCompleted = completedDeliveries;
+                        delete roleSpecificData.order; 
+                    }
+                    break;
 
-            case USER_ROLES.INVENTORYMANAGER:
-                roleSpecificData = await this.inventoryManagerRepository.findOne({
-                    where: { user: { userId: baseUser.userId } },
-                });
+                case USER_ROLES.INVENTORYMANAGER:
+                    roleSpecificData = await this.inventoryManagerRepository.findOne({
+                        where: { user: { userId: baseUser.userId } },
+                    });
 
-                break;
+                    break;
 
-            default:
-                roleSpecificData = { details: `Base user role: ${baseUser.role}` };
-                break;
+                default:
+                    roleSpecificData = { details: `Base user role: ${baseUser.role}` };
+                    break;
+            }
+
+            return {
+                ...baseUser,
+                profile: roleSpecificData || null,
+            };
         }
-
-        return {
-            ...baseUser,
-            profile: roleSpecificData || null,
-        };
+        catch(error){
+            throw error;
+        }
     }
 }

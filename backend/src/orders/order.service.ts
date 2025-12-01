@@ -182,7 +182,8 @@ export class OrderService {
 
     //kibria
     async assignDeliveryMan(orderId: number, deliveryManId: number): Promise<Orders> {
-        const order = await this.orderRepo.findOne({
+        try{
+            const order = await this.orderRepo.findOne({
             where: { id: orderId },
             relations: ['orderStatus'],
         })
@@ -210,35 +211,44 @@ export class OrderService {
         order.orderStatus = assignedDeliveryMan;
 
         return await this.orderRepo.save(order);
+        }
+        catch(error){
+            throw error;
+        }
     }
 
     //kibria
     async confirmOrder(orderId: number): Promise<Orders> {
-        const order = await this.orderRepo.findOne({
-            where: { id: orderId },
-            relations: ['orderStatus']
-        })
+        try{
+            const order = await this.orderRepo.findOne({
+                where: { id: orderId },
+                relations: ['orderStatus']
+            })
 
-        if (!order) throw new BadRequestException('Order not found');
+            if (!order) throw new BadRequestException('Order not found');
 
-        if (order.orderStatus.id === 9 || order.orderStatus.id === 7 || order.orderStatus.id === 8) {
-            throw new BadRequestException('Order is already delivered or cancelled or on the way, cannot confirm.');
+            if (order.orderStatus.id === 9 || order.orderStatus.id === 7 || order.orderStatus.id === 8) {
+                throw new BadRequestException('Order is already delivered or cancelled or on the way, cannot confirm.');
+            }
+
+            const confirmedStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 6 } });
+
+            if (!confirmedStatus) {
+                throw new InternalServerErrorException('Confirmed status (ID 6) not found in DB');
+            }
+
+            order.orderStatus = confirmedStatus;
+
+            return await this.orderRepo.save(order);
+        } catch(error){
+            throw error;
         }
-
-        const confirmedStatus: OrderStatuses | null = await this.orderStatusRepo.findOne({ where: { id: 6 } });
-
-        if (!confirmedStatus) {
-            throw new InternalServerErrorException('Confirmed status (ID 6) not found in DB');
-        }
-
-        order.orderStatus = confirmedStatus;
-
-        return await this.orderRepo.save(order);
     }
 
     //kibria
     async cancelOrder(orderId: number): Promise<Orders> {
-        const order = await this.orderRepo.findOne({
+        try{
+            const order = await this.orderRepo.findOne({
             where: { id: orderId },
             relations: ['orderStatus']
         })
@@ -259,11 +269,17 @@ export class OrderService {
         order.cancelledAt = new Date();
 
         return await this.orderRepo.save(order);
+        }
+        catch(error){
+            throw error;
+        }
+        
     }
 
     //kibria
     async processOrder(orderId: number): Promise<Orders> {
-        const order = await this.orderRepo.findOne({
+        try{
+            const order = await this.orderRepo.findOne({
             where: { id: orderId },
             relations: ['orderStatus']
         })
@@ -283,37 +299,45 @@ export class OrderService {
         }
 
         return await this.orderRepo.save(order);
+        }
+        catch(error){
+            throw error;
+        }
     }
 
     //kibria
     async getTotalSales(filter: string): Promise<{ total: number }> {
-        let date = new Date();
-        const now = new Date();
+        try{
+            let date = new Date();
+            const now = new Date();
 
-        switch (filter.toLowerCase()) {
-            case SalesFilter.DAILY.toLowerCase():
-                date.setDate(now.getDate() - 1);
-                break;
-            case SalesFilter.WEEKLY.toLowerCase():
-                date.setDate(now.getDate() - 7);
-                break;
-            case SalesFilter.MONTHLY.toLowerCase():
-                date.setMonth(now.getMonth() - 1);
-                break;
-            default:
-                throw new BadRequestException('Invalid sales filter. Use daily, weekly, or monthly.');
+            switch (filter.toLowerCase()) {
+                case SalesFilter.DAILY.toLowerCase():
+                    date.setDate(now.getDate() - 1);
+                    break;
+                case SalesFilter.WEEKLY.toLowerCase():
+                    date.setDate(now.getDate() - 7);
+                    break;
+                case SalesFilter.MONTHLY.toLowerCase():
+                    date.setMonth(now.getMonth() - 1);
+                    break;
+                default:
+                    throw new BadRequestException('Invalid sales filter. Use daily, weekly, or monthly.');
+                }
+
+                const deliveredStatusId = 9;
+
+                const totalSales = await this.orderRepo.createQueryBuilder('orders')
+                    .select('SUM(orders.total)', 'total')
+                    .where('orders.date >= :date', { date: date.toISOString() })
+                    .andWhere('orders.orderStatusId = :statusId', { statusId: deliveredStatusId })
+                    .getRawOne() as { total: string };
+
+                return { total: parseFloat(totalSales.total) || 0 };
         }
-
-        const deliveredStatusId = 9;
-
-        const totalSales = await this.orderRepo.createQueryBuilder('orders')
-            .select('SUM(orders.total)', 'total')
-            .where('orders.date >= :date', { date: date.toISOString() })
-            .andWhere('orders.orderStatusId = :statusId', { statusId: deliveredStatusId })
-            .getRawOne() as { total: string };
-
-        return { total: parseFloat(totalSales.total) || 0 };
+        catch(error){
+            throw error;                                                    
+        }
     }
-
 }
 
