@@ -1,5 +1,11 @@
 /* eslint-disable prettier/prettier */
+import { IsInt, IsPositive, IsEmail } from 'class-validator';
+
 export class ChangeEmailDTO {
-    customerId: number;
-    email: string
+  @IsInt()              
+  @IsPositive()         
+  customerId: number;
+
+  @IsEmail()            
+  email: string;
 }
