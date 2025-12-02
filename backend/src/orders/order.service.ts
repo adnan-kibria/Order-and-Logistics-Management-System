@@ -221,7 +221,8 @@ export class OrderService {
 
     //kibria
     async sendMailToDeliveryMan(orderId: number, mail: string) : Promise<string> {
-        const order = await this.orderRepo.findOne({
+        try{
+            const order = await this.orderRepo.findOne({
             where: { id: orderId },
             relations: ['customer', 'customer.shippingAddress', 'orderDetails', 'orderDetails.product', 'deliveryman']
         });
@@ -294,6 +295,10 @@ export class OrderService {
             }
         });
         return `Mail sent to deliveryman successfully`;
+        }
+        catch(error){
+            throw error;
+        }
     }
 
     //kibria
@@ -325,7 +330,8 @@ export class OrderService {
     }
 
     async sendMailToCustomer(userId: string, mail: string) : Promise<string> {
-        const user = await this.userRepo.findOne({
+        try{
+            const user = await this.userRepo.findOne({
             where: { userId: userId }
         });
         if (!user) {
@@ -347,6 +353,10 @@ export class OrderService {
                      <p>Your order is confirmed</p>`,  
         });
         return 'Mail sent to customer successfully';
+        }
+        catch(error){
+            throw error;
+        }
     }
 
     //kibria
