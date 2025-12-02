@@ -7,6 +7,7 @@ import { OrderService } from "./order.service";
 import { PlaceOrderDTO } from "./dto/place-order.dto";
 import { CustomerGuard } from "src/auth/customer.guard";
 import { AdminGuard } from "src/auth/admin.guard";
+import { Users } from "src/users/entities/users.entity";
  
 @Controller('order')
 export class OrderController {
@@ -58,9 +59,26 @@ export class OrderController {
 
     //kibria
     @UseGuards(AdminGuard)
+    @Post('sendMailToDeliveryMan/:orderId/:mail')
+    sendMailToDeliveryMan(@Param('orderId', ParseIntPipe) orderId: number,
+    @Param('mail') mail : string): Promise<string> {
+        return this.orderService.sendMailToDeliveryMan(orderId, mail);
+    }
+
+    //kibria
+    @UseGuards(AdminGuard)
     @Patch('confirm-order/:orderId')
     confirmOrder(@Param('orderId') orderId: number,): Promise<Orders> {
         return this.orderService.confirmOrder(orderId);
+    }
+
+    //kibria
+    @UseGuards(AdminGuard)
+    @Post('sendMailToCustomer/:userId/:mail')
+    sendMailToCustomer(
+        @Param('userId') userId: string,
+        @Param('mail') mail : string): Promise<string> {
+        return this.orderService.sendMailToCustomer(userId, mail);
     }
     //kibria
     @UseGuards(AdminGuard)
