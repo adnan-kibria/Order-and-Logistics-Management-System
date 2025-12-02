@@ -12,6 +12,7 @@ import { Products } from "src/products/entities/products.entity";
 import { OrderItemDTO, PlaceOrderDTO } from "./dto/place-order.dto";
 import { OrderDetails } from "./entities/order-details.entity";
 import { MailerService } from "@nestjs-modules/mailer";
+import { Users } from "src/users/entities/users.entity";
 
 @Injectable()
 export class OrderService {
@@ -21,6 +22,7 @@ export class OrderService {
         @InjectRepository(Customers) private readonly customerRepo: Repository<Customers>,
         @InjectRepository(DeliveryMen) private readonly deliverymenRepo: Repository<DeliveryMen>,
         @InjectRepository(OrderStatuses) private readonly orderStatusRepo: Repository<OrderStatuses>,
+        @InjectRepository(Users) private readonly userRepo: Repository<Users>,
         private readonly mailerService: MailerService) { }
 
     async sendEmail(userEmail: string, order: PlaceOrderDTO) {
@@ -218,6 +220,83 @@ export class OrderService {
     }
 
     //kibria
+    async sendMailToDeliveryMan(orderId: number, mail: string) : Promise<string> {
+        const order = await this.orderRepo.findOne({
+            where: { id: orderId },
+            relations: ['customer', 'customer.shippingAddress', 'orderDetails', 'orderDetails.product', 'deliveryman']
+        });
+
+        if (!order) {
+            throw new BadRequestException(`Order with ID ${orderId} not found.`);
+        }
+        if (!order.deliveryman) {
+            throw new BadRequestException(`Deliveryman not assigned to order ID ${orderId}.`);
+        }
+        if (!order.customer.shippingAddress) {
+            throw new InternalServerErrorException(`Shipping address not found for customer ID ${order.customer.id}.`);
+        }
+
+        const deliverymanEmail = await this.userRepo.findOne({
+            where: { email: mail }
+        });
+
+        if (!deliverymanEmail) {
+            throw new BadRequestException(`Deliveryman email ${mail} not found.`);
+        }
+
+        const orderItemsList = order.orderDetails.map(item => ({
+            productName: item.product.name,
+            qty: item.qty,
+            orderPrice: item.orderPrice,
+            subtotal: item.orderPrice * item.qty,
+        }));
+
+        const shippingAddress = order.customer.shippingAddress;
+        
+        await this.mailerService.sendMail({
+            to: deliverymanEmail.email,
+            subject: `New Order Assignment - Order #${order.id}`,
+            template: './delivery-assignment',
+            html: `
+                <h1>Order Assignment - Order #${order.id}</h1>
+                <p>Please deliver the following order:</p>
+                
+                <h2>Customer Details</h2>
+                <p><strong>Name:</strong> ${order.customer.name}</p>
+                <p><strong>Phone:</strong> ${order.customer.phone}</p>
+
+                <h2>Shipping Address</h2>
+                <p><strong>City:</strong> ${shippingAddress.city}</p>
+                <p><strong>Location:</strong> ${shippingAddress.location}</p>
+                ${shippingAddress.details ? `<p><strong>Details:</strong> ${shippingAddress.details}</p>` : ''}
+
+                <h2>Order Items</h2>
+                <ul>
+                    ${orderItemsList.map(item => 
+                        `<li>${item.productName} (x${item.qty}) @ ${item.orderPrice} each. Subtotal: ${item.subtotal}</li>`
+                    ).join('')}
+                </ul>
+                
+                <h2>Order Summary</h2>
+                <p>Product Total: ${order.productTotal}</p>
+                <p>Shipping Charge: ${order.shippingCharge}</p>
+                <p><strong>Grand Total:</strong> ${order.total}</p>
+            `,
+            context: {
+                orderId: order.id,
+                customerName: order.customer.name,
+                customerPhone: order.customer.phone,
+                shippingCity: shippingAddress.city,
+                shippingLocation: shippingAddress.location,
+                shippingDetails: shippingAddress.details,
+                orderItems: orderItemsList,
+                totalAmount: order.total,
+            }
+        });
+        return `Mail sent to deliveryman successfully`;
+    }
+
+    //kibria
     async confirmOrder(orderId: number): Promise<Orders> {
         try{
             const order = await this.orderRepo.findOne({
@@ -243,6 +322,31 @@ export class OrderService {
         } catch(error){
             throw error;
         }
+    }
+
+    async sendMailToCustomer(userId: string, mail: string) : Promise<string> {
+        const user = await this.userRepo.findOne({
+            where: { userId: userId }
+        });
+        if (!user) {
+            throw new BadRequestException(`User with ID ${userId} not found.`);
+        }
+
+        const customerEmail = await this.userRepo.findOne({
+            where: { email: mail }
+        });
+
+        if (!customerEmail) {
+            throw new BadRequestException(`Deliveryman email ${mail} not found.`);
+        }
+
+        await this.mailerService.sendMail({
+            to: customerEmail.email,
+            subject: `Order Status`,
+            html: `<h1>Order status</h1>
+                     <p>Your order is confirmed</p>`,  
+        });
+        return 'Mail sent to customer successfully';
     }
 
     //kibria
