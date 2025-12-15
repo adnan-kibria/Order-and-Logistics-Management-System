@@ -7,7 +7,9 @@ import { OrderService } from "./order.service";
 import { PlaceOrderDTO } from "./dto/place-order.dto";
 import { CustomerGuard } from "src/auth/customer.guard";
 import { AdminGuard } from "src/auth/admin.guard";
- 
+import { OrderDetails } from "./entities/order-details.entity";
+import { Customers } from "src/customers/entities/customers.entity";
+
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService: OrderService) { }
@@ -33,10 +35,16 @@ export class OrderController {
     }
     // Munna
     @UseGuards(CustomerGuard)
-    @Get('myOrders/:id')
-    ViewAllMyOrders(@Param('id', ParseIntPipe) id: number): Promise<Orders[]> {
-        return this.orderService.viewAllMyOrders(id);
+    @Get('myOrders/:cId')
+    ViewAllMyOrders(@Param('cId', ParseIntPipe) cId: number): Promise<Orders[]> {
+        return this.orderService.viewAllMyOrders(cId);
     }
+
+    @Get('customers/:oId')
+    getCustomersByOrderId(@Param('oId', ParseIntPipe) oId: number): Promise<Orders[]> {
+        return this.orderService.getCustomersByOrderId(oId)
+    }
+
     // Munna
     @UseGuards(CustomerGuard)
     @Put('cancelByCustomer/:oId')
@@ -44,6 +52,10 @@ export class OrderController {
         return this.orderService.cancelOrderByCustomer(oId);
     }
 
+    @Get('order-details/:oId')
+    orderDetailsByOrderId(@Param('oId', ParseIntPipe) oId: number): Promise<OrderDetails[]> {
+        return this.orderService.orderDetailsByOrderId(oId);
+    }
 
 
 

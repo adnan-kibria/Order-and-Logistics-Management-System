@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Get, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entities/users.entity';
 import { In, Repository } from 'typeorm';
@@ -123,14 +123,14 @@ export class UserService {
                     where: { user: { userId: baseUser.userId } },
                     relations: ['shippingAddress'],
                 });
-                
+
                 if (roleSpecificData) {
                     const orderCount = await this.orderRepository.count({
                         where: { customer: { id: roleSpecificData.id } },
                     });
                     roleSpecificData.totalOrders = orderCount;
                 }
-                
+
                 break;
 
             case USER_ROLES.DELIVERYMAN:
@@ -138,13 +138,13 @@ export class UserService {
                     where: { user: { userId: baseUser.userId } },
                     relations: ['order'],
                 });
-                
+
                 if (roleSpecificData) {
                     const completedDeliveries = await this.orderRepository.count({
                         where: { deliveryman: { id: roleSpecificData.id }, deliveredAt: new Date() },
                     });
                     roleSpecificData.deliveriesCompleted = completedDeliveries;
-                    delete roleSpecificData.order; 
+                    delete roleSpecificData.order;
                 }
                 break;
 
@@ -164,5 +164,13 @@ export class UserService {
             ...baseUser,
             profile: roleSpecificData || null,
         };
+    }
+
+    // @Get('allCustomerDetails')
+    async allCustomerDetails(): Promise<Users[]> {
+        return await this.userRepository.find({
+            where: { role: 'customer' },
+            relations: ['customer']
+        })
     }
 }
