@@ -133,6 +133,14 @@ export class OrderService {
 
     }
 
+    // 
+    async getCustomersByOrderId(oId: number): Promise<Orders[]> {
+        return await this.orderRepo.find({
+            where: { id: oId },
+            relations: ['customer']
+        })
+    }
+
     // Munna
     async trackOrders(cId: number): Promise<Orders[]> {
         const customer = await this.customerRepo.findOneBy({ id: cId })
@@ -180,6 +188,18 @@ export class OrderService {
 
         return await this.orderRepo.save(existingOrder);
 
+    }
+
+    // Munna
+    async orderDetailsByOrderId(id: number): Promise<OrderDetails[]> {
+        try {
+            return this.orderDetailsRepo.find({
+                where: { order: { id } },
+                relations: ['order', 'product']
+            })
+        } catch (error) {
+            throw error;
+        }
     }
 
     //kibria

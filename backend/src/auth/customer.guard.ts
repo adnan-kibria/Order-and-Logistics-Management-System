@@ -27,7 +27,7 @@ export class CustomerGuard implements CanActivate {
                 }
             );
             request['user'] = payload;
-            if (payload?.role != 'customer') {
+            if (payload?.role !== 'customer') {
                 throw new UnauthorizedException("customer access only !!")
             }
         } catch {
