@@ -97,8 +97,9 @@ export class UserService {
     async deleteUser(email: string): Promise<{ message: string }> {
         try{
             const user = await this.userRepository.findOne({
-            where: { email },
-            relations: ['deliveryman', 'inventorymanager']
+            where: { email : email },
+            // relations: ['deliveryman', 'inventorymanager'],
+            // select: ['email']
             });
             if (!user) throw new BadRequestException('User not found');
 

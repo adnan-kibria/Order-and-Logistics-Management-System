@@ -1,12 +1,10 @@
+import { Users } from "src/users/entities/users.entity";
+
 // Main Deliveryman Interface
 export interface DeliverymanInterface {
-  id?: number;
-  name: string;
-  email?: string;      
-  phone: string;
-  vehicleType?: string; 
-  isActive?: boolean;
-  user?: any; 
+   name: string;
+    phone: string;
+    user: Users;
 }
 // Order Interface (Used for Deliveryman operations)
 export interface IOrder {

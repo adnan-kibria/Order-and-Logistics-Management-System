@@ -99,4 +99,10 @@ export class OrderController {
     getTotalSales(@Param('filter') filter: string,): Promise<{ total: number }> {
         return this.orderService.getTotalSales(filter);
     }
+
+    @UseGuards(AdminGuard)
+    @Get('get-orders/:statusId')
+    getAllOrders(@Param('statusId', ParseIntPipe) statusId: number): Promise<Orders[]> {
+        return this.orderService.getAllOrders(statusId);
+    }
 }

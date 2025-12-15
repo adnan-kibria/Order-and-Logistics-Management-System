@@ -31,7 +31,7 @@ export class AdminGuard implements CanActivate {
                 throw new UnauthorizedException("admin access only !!")
             }
         } catch {
-            throw new UnauthorizedException("Token invalid");
+            throw new UnauthorizedException("Invalid login unauthorized");
         }
         return true;
     }

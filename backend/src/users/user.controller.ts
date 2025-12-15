@@ -44,7 +44,6 @@ export class UserController {
 
     //kibria
     @UseGuards(AdminGuard)
-    @Roles(Role.Admin)
     @Get('admin/:userId')
     async viewUserProfile(@Param('user_id') user_id: string): Promise<any> {
         return this.userService.getProfileByAdmin(user_id);

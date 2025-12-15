@@ -453,5 +453,17 @@ export class OrderService {
             throw error;                                                    
         }
     }
+
+    async getAllOrders(statusId: number): Promise<Orders[]> {
+        try{
+            return await this.orderRepo.find({
+            where: { orderStatus: { id: statusId } },
+            relations: ['customer', 'orderStatus', 'deliveryman']
+        });
+        }
+        catch(error){
+            throw error;
+        }
+    }
 }
 
