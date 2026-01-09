@@ -191,4 +191,29 @@ export class UserService {
             relations: ['customer']
         })
     }
+
+    async createAdmin(user: CreateUser): Promise<Users> {
+        try{
+            const exist = await this.userRepository.findOne({
+            where: {
+                email: user.email
+            }
+            });
+            if (exist) throw new BadRequestException('Email already exists');
+
+            const saltRounds = 6;
+            const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+            const u = this.userRepository.create({
+                email: user.email,
+                password: hashedPassword,
+                role: user.role
+            });
+            const saveUser = await this.userRepository.save(u);
+            return saveUser;
+        }
+        catch(error){
+            throw error;
+        }
+        
+    }
 }

@@ -3,15 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDeliverymanDto } from './dto/create-deliveryman.dto';
 import { UpdateDeliverymanDto } from './dto/update-deliveryman.dto';
-import { Deliveryman } from './entities/deliveryman.entity';
 import { Orders } from '../orders/entities/orders.entity'; 
 import { OrderStatuses } from '../orders/entities/order-statuses.entity'; 
+import { DeliveryMen } from 'src/users/entities/deliverymen.entity';
 
 @Injectable()
 export class DeliverymanService {
   constructor(
-    @InjectRepository(Deliveryman)
-    private deliverymanRepo: Repository<Deliveryman>,
+    @InjectRepository(DeliveryMen)
+    private deliverymanRepo: Repository<DeliveryMen>,
 
     @InjectRepository(Orders)
     private orderRepo: Repository<Orders>,

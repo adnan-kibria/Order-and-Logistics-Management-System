@@ -1,12 +1,10 @@
 import { Users } from "src/users/entities/users.entity";
 
-// Main Deliveryman Interface
 export interface DeliverymanInterface {
-   name: string;
+    name: string;
     phone: string;
     user: Users;
 }
-// Order Interface (Used for Deliveryman operations)
 export interface IOrder {
   id: number;
   deliverymanId: number;

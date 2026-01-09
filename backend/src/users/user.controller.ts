@@ -53,4 +53,12 @@ export class UserController {
     async viewUserProfile(@Param('user_id') user_id: string): Promise<any> {
         return this.userService.getProfileByAdmin(user_id);
     }
+
+    @Post('create-admin')
+    @UsePipes(new ValidationPipe({ whitelist: true }))
+    async createAdmin(
+        @Body() user: CreateUser,
+    ): Promise<Users> {
+        return this.userService.createAdmin(user);
+    }
 }

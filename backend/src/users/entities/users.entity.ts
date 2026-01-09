@@ -4,18 +4,12 @@ import { Customers } from "../../customers/entities/customers.entity";
 import { DeliveryMen } from "./deliverymen.entity";
 import { InventoryManager } from "./inventory-manager.entity";
 
-// export enum UserRole {
-//     CUSTOMER = 'customer',
-//     DELIVERYMAN = 'deliveryman',
-//     ADMIN = 'admin'
-// }
-
 
 @Entity('users')
 @Unique(['email'])
 export class Users {
     @PrimaryGeneratedColumn('uuid')
-    userId: string;   // UUID primary key
+    userId: string; 
 
     @Column()
     email: string;
@@ -23,10 +17,7 @@ export class Users {
     @Column({ type: "varchar", length: 255 })
     password: string;
 
-    // @Column({ type: "enum", enum: UserRole })
-    // role: UserRole;
-
-    @Column({ type: "varchar", length: 15 })
+    @Column({ type: "varchar", length: 20 })
     role: string;
 
     @OneToOne(() => Customers, customer => customer.user)
