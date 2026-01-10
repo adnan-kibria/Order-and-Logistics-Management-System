@@ -13,7 +13,8 @@ export class AdminGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request: Request = context.switchToHttp().getRequest();
-        const token = this.extractTokenFromHeader(request);
+        // const token = this.extractTokenFromHeader(request);
+        const token = request.cookies?.jwt;
         console.log(token)
         // debugger;
         if (!token) {
