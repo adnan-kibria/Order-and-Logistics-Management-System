@@ -27,25 +27,23 @@ export default function Login() {
     }
 
     try {
-      await AuthService.signIn({ email, password });
+        const loginResp = await AuthService.signIn({ email, password });
 
-      const user = await AuthService.user();
-      console.log(user);
+        localStorage.setItem("role", loginResp.role);
+        localStorage.setItem("userId", loginResp.id?.toString?.() ?? "");
+        localStorage.setItem("access_token", loginResp.access_token);
 
-      localStorage.setItem("role", user.role);
-      localStorage.setItem("userId", user.sub.toString());
-
-      if (user.role === "admin") {
-        router.push("/admin/dashboard");
-      } else if (user.role === "customer") {
-        router.push("/customer/dashboard");
-      } else if (user.role === "inventorymanager") {
-        router.push("/inventorymanager/dashboard");
-      } else if (user.role === "deliveryman") {
-        router.push("/deliveryman/dashboard");
-      } else {
-        setErrors({ general: "Unknown role" });
-      }
+        if (loginResp.role === "admin") {
+            router.push("/admin/dashboard");
+        } else if (loginResp.role === "customer") {
+            router.push("/customer/dashboard");
+        } else if (loginResp.role === "inventorymanager") {
+            router.push("/inventorymanager/dashboard");
+        } else if (loginResp.role === "deliveryman") {
+            router.push("/deliveryman/dashboard");
+        } else {
+            setErrors({ general: "Unknown role" });
+        }
     } catch (err: any) {
       setErrors({ general: "Invalid email or password" });
     }
