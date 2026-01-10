@@ -18,7 +18,6 @@ export class JwtAuthGuard implements CanActivate {
       return true;
     }
 
-    // NOTE: call getRequest() (was missing parentheses in original)
     const request: any = context.switchToHttp().getRequest();
     const token = this.extractToken(request);
     if (!token) {
@@ -26,7 +25,6 @@ export class JwtAuthGuard implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        // prefer configured constant, fallback to env or a default (avoid default in prod)
         secret: jwtConstants.secret || process.env.JWT_SECRET || 'secretkey',
       });
       request['user'] = payload;
