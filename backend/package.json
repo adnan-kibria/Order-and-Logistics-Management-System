@@ -49,6 +49,7 @@
     "@nestjs/testing": "^11.0.1",
     "@types/bcrypt": "^6.0.0",
     "@types/body-parser": "^1.19.6",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cookiejar": "^2.1.5",
     "@types/express": "^5.0.5",
     "@types/express-session": "^1.18.2",

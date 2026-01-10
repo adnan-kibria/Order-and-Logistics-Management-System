@@ -1,15 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Request,
-  Res,
-  UnauthorizedException,
-} from '@nestjs/common';
+import {Body, Controller, HttpCode, HttpStatus, Post, Request, Res,UnauthorizedException,} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login.dto';
 import express from 'express';
@@ -24,15 +15,13 @@ export class AuthController {
   async signIn(@Body() dto: LoginDTO, @Res({ passthrough: true }) res: express.Response) {
     const result = await this.authService.signIn(dto.email, dto.password);
 
-    // set httpOnly cookie with the JWT
     res.cookie('jwt', result.access_token, {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 3600 * 1000, // 1 hour
+      maxAge: 3600 * 1000,
     });
 
-    // Return user info (exclude token)
     return { id: result.id, email: result.email, role: result.role };
   }
 
