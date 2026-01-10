@@ -13,13 +13,6 @@ export default function NavBar(){
               tabIndex={-1}
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
               <li><Link href={"/"}>Home</Link></li>
-              <li>
-                <Link href={"/products"}>Shop</Link>
-                <ul className="p-2">
-                  <li><Link href={"products?category=clothings"}>Clothings</Link></li>
-                  <li><Link href={"products?category=electronics"}>Electronics</Link></li>
-                </ul>
-              </li>
               <li><Link href={"/about"}>About</Link></li>
               <li><Link href={"/contract"}>Contract</Link></li>
             </ul>
@@ -29,15 +22,6 @@ export default function NavBar(){
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             <li><Link href={"/"}>Home</Link></li>
-            <li>
-              <details>
-                <summary>Shop</summary>
-                <ul className="p-2 bg-indigo-500 w-40 z-1">
-                  <li><Link href={"products?category=clothings"}>Clothings</Link></li>
-                  <li><Link href={"products?category=electronics"}>Electronics</Link></li>
-                </ul>
-              </details>
-            </li>
             <li><Link href={"/about"}>About</Link></li>
             <li><Link href={"/contract"}>Contract</Link></li>
           </ul>
