@@ -27,19 +27,25 @@ export default function Login() {
     }
 
     try {
-        const loginResp = await AuthService.signIn({ email, password });
+        // const loginResp = await AuthService.signIn({ email, password });
+        // send credentials; backend will set an httpOnly cookie
+        await AuthService.signIn({ email, password });
 
-        localStorage.setItem("role", loginResp.role);
-        localStorage.setItem("userId", loginResp.id?.toString?.() ?? "");
-        localStorage.setItem("access_token", loginResp.access_token);
+        // fetch the current user from the server (reads cookie)
+        const user = await AuthService.user();
 
-        if (loginResp.role === "admin") {
+        localStorage.setItem("role", user.role);
+        localStorage.setItem("userId", user.sub.toString());
+        // localStorage.setItem("userId", loginResp.id?.toString?.() ?? "");
+        // localStorage.setItem("access_token", loginResp.access_token);
+
+        if (user.role === "admin") {
             router.push("/admin/dashboard");
-        } else if (loginResp.role === "customer") {
+        } else if (user.role === "customer") {
             router.push("/customer/dashboard");
-        } else if (loginResp.role === "inventorymanager") {
+        } else if (user.role === "inventorymanager") {
             router.push("/inventorymanager/dashboard");
-        } else if (loginResp.role === "deliveryman") {
+        } else if (user.role === "deliveryman") {
             router.push("/deliveryman/dashboard");
         } else {
             setErrors({ general: "Unknown role" });
