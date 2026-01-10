@@ -1,7 +1,7 @@
 export default function Footer(){
     return (
         <>
-            <footer className="footer sm:footer-horizontal bg-base-200 text-base-content p-10">
+            <footer className="footer sm:footer-horizontal bg-base-300 text-base-content p-10">
                 <aside>
                     <p>
                     Shop-Online
