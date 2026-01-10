@@ -1,10 +1,8 @@
 import axios from "axios";
-import { useRouter } from "next/router";
-
-const router = useRouter();
+import { redirect } from "next/navigation";
 
 const api = axios.create({
-    baseURL: "http://localhost:2000",
+    baseURL: process.env.PUBLIC_NEXT_API_URL ?? "http://localhost:2000",
     headers: {"Content-Type" : "application/json"}
 });
 
@@ -12,7 +10,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      router.push('/login');
+      redirect('/login');
     }
     return Promise.reject(error);
   }
