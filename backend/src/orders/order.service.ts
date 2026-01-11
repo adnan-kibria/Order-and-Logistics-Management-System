@@ -506,11 +506,25 @@ export class OrderService {
         }
     }
 
+    //kibria
     async getAllOrders(statusId: number): Promise<Orders[]> {
         try {
             return await this.orderRepo.find({
                 where: { orderStatus: { id: statusId } },
                 relations: ['customer', 'orderStatus', 'deliveryman']
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
+    //kibria
+    async getAllOrdersWithoutFilter(): Promise<Orders[]> {
+        try {
+            return await this.orderRepo.find({
+                relations: ['customer', 'orderStatus', 'deliveryman'],
+                order: { date: 'DESC' }
             });
         }
         catch (error) {

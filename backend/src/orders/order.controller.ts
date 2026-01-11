@@ -129,9 +129,17 @@ export class OrderController {
         return this.orderService.getTotalSales(filter);
     }
 
+    //kibria
     @UseGuards(AdminGuard)
     @Get('get-orders/:statusId')
     getAllOrders(@Param('statusId', ParseIntPipe) statusId: number): Promise<Orders[]> {
         return this.orderService.getAllOrders(statusId);
+    }
+
+    //kibria
+    @UseGuards(AdminGuard)
+    @Get('get-all-orders')
+    getAllOrdersWithoutFilter(): Promise<Orders[]> {
+        return this.orderService.getAllOrdersWithoutFilter();
     }
 }
