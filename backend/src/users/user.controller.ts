@@ -9,6 +9,7 @@ import { CreateInventoryManagerDto } from 'src/inventory-manager/dto/create-inve
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
 import { AdminGuard } from 'src/auth/admin.guard';
+import { CreateAdmin } from './dto/create-admin.dto';
 
 @Controller('users')
 export class UserController {
@@ -57,7 +58,7 @@ export class UserController {
     @Post('create-admin')
     @UsePipes(new ValidationPipe({ whitelist: true }))
     async createAdmin(
-        @Body() user: CreateUser,
+        @Body() user: CreateAdmin,
     ): Promise<Users> {
         return this.userService.createAdmin(user);
     }

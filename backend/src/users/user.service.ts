@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 /* eslint-disable prettier/prettier */
 import { BadRequestException, Get, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +15,7 @@ import { InventoryManagerInterface } from 'src/inventory-manager/interface/inven
 import { del } from 'superagent';
 import { Customers } from 'src/customers/entities/customers.entity';
 import { Orders } from 'src/orders/entities/orders.entity';
+import { CreateAdmin } from './dto/create-admin.dto';
 
 const USER_ROLES = {
     CUSTOMER: 'customer',
@@ -34,11 +36,11 @@ export class UserService {
 
     //kibria
     async createUser(user: CreateUser, deliveryMan: CreateDeliverymanDto, inventoryManager: CreateInventoryManagerDto): Promise<Users> {
-        try{
+        try {
             const exist = await this.userRepository.findOne({
-            where: {
-                email: user.email
-            }
+                where: {
+                    email: user.email
+                }
             });
             if (exist) throw new BadRequestException('Email already exists');
 
@@ -71,10 +73,10 @@ export class UserService {
             }
             return saveUser;
         }
-        catch(error){
+        catch (error) {
             throw error;
         }
-        
+
     }
 
     async findAll(): Promise<Users[]> {
@@ -95,11 +97,11 @@ export class UserService {
 
     //kibria
     async deleteUser(email: string): Promise<{ message: string }> {
-        try{
+        try {
             const user = await this.userRepository.findOne({
-            where: { email : email },
-            // relations: ['deliveryman', 'inventorymanager'],
-            // select: ['email']
+                where: { email: email },
+                // relations: ['deliveryman', 'inventorymanager'],
+                // select: ['email']
             });
             if (!user) throw new BadRequestException('User not found');
 
@@ -112,17 +114,17 @@ export class UserService {
             await this.userRepository.remove(user);
             return { message: 'User deleted successfully' };
         }
-        catch(error){
+        catch (error) {
             throw error;
         }
-        
+
     }
 
     async getProfileByAdmin(userId: string): Promise<any> {
-        try{
+        try {
             const baseUser = await this.userRepository.findOne({
-            where: { userId },
-            select: ['userId', 'email', 'role'],
+                where: { userId },
+                select: ['userId', 'email', 'role'],
             });
 
             if (!baseUser) {
@@ -131,36 +133,36 @@ export class UserService {
 
             let roleSpecificData: any = {};
 
-        switch (baseUser.role) {
-            case USER_ROLES.CUSTOMER:
-                roleSpecificData = await this.customerRepo.findOne({
-                    where: { user: { userId: baseUser.userId } },
-                    relations: ['shippingAddress'],
-                });
-
-                if (roleSpecificData) {
-                    const orderCount = await this.orderRepository.count({
-                        where: { customer: { id: roleSpecificData.id } },
+            switch (baseUser.role) {
+                case USER_ROLES.CUSTOMER:
+                    roleSpecificData = await this.customerRepo.findOne({
+                        where: { user: { userId: baseUser.userId } },
+                        relations: ['shippingAddress'],
                     });
-                    roleSpecificData.totalOrders = orderCount;
-                }
 
-                break;
+                    if (roleSpecificData) {
+                        const orderCount = await this.orderRepository.count({
+                            where: { customer: { id: roleSpecificData.id } },
+                        });
+                        roleSpecificData.totalOrders = orderCount;
+                    }
 
-            case USER_ROLES.DELIVERYMAN:
-                roleSpecificData = await this.deliveryManRepository.findOne({
-                    where: { user: { userId: baseUser.userId } },
-                    relations: ['order'],
-                });
+                    break;
 
-                if (roleSpecificData) {
-                    const completedDeliveries = await this.orderRepository.count({
-                        where: { deliveryman: { id: roleSpecificData.id }, deliveredAt: new Date() },
+                case USER_ROLES.DELIVERYMAN:
+                    roleSpecificData = await this.deliveryManRepository.findOne({
+                        where: { user: { userId: baseUser.userId } },
+                        relations: ['order'],
                     });
-                    roleSpecificData.deliveriesCompleted = completedDeliveries;
-                    delete roleSpecificData.order;
-                }
-                break;
+
+                    if (roleSpecificData) {
+                        const completedDeliveries = await this.orderRepository.count({
+                            where: { deliveryman: { id: roleSpecificData.id }, deliveredAt: new Date() },
+                        });
+                        roleSpecificData.deliveriesCompleted = completedDeliveries;
+                        delete roleSpecificData.order;
+                    }
+                    break;
 
                 case USER_ROLES.INVENTORYMANAGER:
                     roleSpecificData = await this.inventoryManagerRepository.findOne({
@@ -179,7 +181,7 @@ export class UserService {
                 profile: roleSpecificData || null,
             };
         }
-        catch(error){
+        catch (error) {
             throw error;
         }
     }
@@ -192,12 +194,12 @@ export class UserService {
         })
     }
 
-    async createAdmin(user: CreateUser): Promise<Users> {
-        try{
+    async createAdmin(user: CreateAdmin): Promise<Users> {
+        try {
             const exist = await this.userRepository.findOne({
-            where: {
-                email: user.email
-            }
+                where: {
+                    email: user.email
+                }
             });
             if (exist) throw new BadRequestException('Email already exists');
 
@@ -206,14 +208,14 @@ export class UserService {
             const u = this.userRepository.create({
                 email: user.email,
                 password: hashedPassword,
-                role: user.role
+                role: "admin"
             });
             const saveUser = await this.userRepository.save(u);
             return saveUser;
         }
-        catch(error){
+        catch (error) {
             throw error;
         }
-        
+
     }
 }

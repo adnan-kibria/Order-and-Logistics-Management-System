@@ -1,3 +1,4 @@
+
 /* eslint-disable no-debugger */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -6,6 +7,12 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 
+export interface JwtPayload {
+    sub: string;
+    role: string;
+    iat: number;
+    exp: number;
+}
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -13,33 +20,23 @@ export class AdminGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request: Request = context.switchToHttp().getRequest();
-        // const token = this.extractTokenFromHeader(request);
-        const token = request.cookies?.jwt;
-        console.log(token)
-        // debugger;
+
+        const token: string = request.cookies['jwt'];
         if (!token) {
-            throw new UnauthorizedException("Token nei");
+            throw new UnauthorizedException('No JWT token found');
         }
+
         try {
-            const payload = await this.jwtService.verifyAsync(
-                token,
-                {
-                    secret: process.env.JWT_SECRET || 'secretkey'
-                }
-            );
-            request['user'] = payload;
-            if (payload?.role !== 'admin') {
-                throw new UnauthorizedException("admin access only !!")
+            const data: JwtPayload = await this.jwtService.verifyAsync(token);
+
+            if (data.role === 'admin') {
+                return true; // allow access
+            } else {
+                throw new UnauthorizedException('Not an admin');
             }
-        } catch {
-            throw new UnauthorizedException("Invalid login unauthorized");
+        } catch (err) {
+            throw new UnauthorizedException('Invalid token');
         }
-        return true;
-    }
 
-
-    private extractTokenFromHeader(request: Request): string | undefined {
-        const [type, token] = request.headers.authorization?.split(' ') ?? [];
-        return type === 'Bearer' ? token : undefined;
     }
 }

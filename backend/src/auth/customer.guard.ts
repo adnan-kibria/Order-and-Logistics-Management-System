@@ -5,7 +5,13 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-// import { jwtConstants } from "../common/constants/constants";
+
+export interface JwtPayload {
+    sub: string;
+    role: string;
+    iat: number;
+    exp: number;
+}
 
 @Injectable()
 export class CustomerGuard implements CanActivate {
@@ -13,32 +19,24 @@ export class CustomerGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request: Request = context.switchToHttp().getRequest();
-        const token = this.extractTokenFromHeader(request);
-        console.log(token)
-        // debugger;
+
+        const token: string = request.cookies['jwt'];
         if (!token) {
-            throw new UnauthorizedException("Token nei");
+            throw new UnauthorizedException('No JWT token found');
         }
+
+        console.log('Token in CustomerGuard:', token);  
         try {
-            const payload = await this.jwtService.verifyAsync(
-                token,
-                {
-                    secret: process.env.JWT_SECRET || 'secretkey'
-                }
-            );
-            request['user'] = payload;
-            if (payload?.role !== 'customer') {
-                throw new UnauthorizedException("customer access only !!")
+            const data: JwtPayload = await this.jwtService.verifyAsync(token);
+
+            if (data.role === 'customer') {
+                return true; // allow access
+            } else {
+                throw new UnauthorizedException('Not an admin');
             }
-        } catch {
-            throw new UnauthorizedException("Invalid login unauthorized");
+        } catch (err) {
+            throw new UnauthorizedException('Invalid token');
         }
-        return true;
-    }
 
-
-    private extractTokenFromHeader(request: Request): string | undefined {
-        const [type, token] = request.headers.authorization?.split(' ') ?? [];
-        return type === 'Bearer' ? token : undefined;
     }
 }

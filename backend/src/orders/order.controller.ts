@@ -1,25 +1,43 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, Req, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { OrderService } from "./order.service";
 // import { Customers } from "src/customers/entities/customers.entity";
-import { PlaceOrderDTO } from "./dto/place-order.dto";
 import { CustomerGuard } from "src/auth/customer.guard";
 import { AdminGuard } from "src/auth/admin.guard";
 import { OrderDetails } from "./entities/order-details.entity";
-import { Customers } from "src/customers/entities/customers.entity";
+import { PlaceOrderDTO } from "./dto/place-orderV2.dto";
+
 
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService: OrderService) { }
 
     // Munna
-    @UsePipes(new ValidationPipe())
+    // @UsePipes(new ValidationPipe())
+    // @UseGuards(CustomerGuard)
+    // @Post('place')
+    // placeOrder(@Req() req, @Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
+    //     const token: string = req.cookies['jwt'];
+
+    //     console.log('Token in placeOrder:', token);
+    //     return this.orderService.placeOrder(placeOrderDTO, token);
+    // }
+
     @UseGuards(CustomerGuard)
     @Post('place')
-    placeOrder(@Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
-        return this.orderService.placeOrder(placeOrderDTO);
+    async placeOrder(@Req() req, @Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
+        const token: string = req.cookies['jwt'];
+        const cId = await this.orderService.user(token);
+
+        return this.orderService.placeOrderV2(placeOrderDTO, cId);
+    }
+
+    @Post('customer')
+    @UseGuards(CustomerGuard)
+    getCustomer() {
+        return "customer";
     }
     // Munna
     @UseGuards(CustomerGuard)
@@ -72,7 +90,7 @@ export class OrderController {
     @UseGuards(AdminGuard)
     @Post('sendMailToDeliveryMan/:orderId/:mail')
     sendMailToDeliveryMan(@Param('orderId', ParseIntPipe) orderId: number,
-    @Param('mail') mail : string): Promise<string> {
+        @Param('mail') mail: string): Promise<string> {
         return this.orderService.sendMailToDeliveryMan(orderId, mail);
     }
 
@@ -88,7 +106,7 @@ export class OrderController {
     @Post('sendMailToCustomer/:userId/:mail')
     sendMailToCustomer(
         @Param('userId') userId: string,
-        @Param('mail') mail : string): Promise<string> {
+        @Param('mail') mail: string): Promise<string> {
         return this.orderService.sendMailToCustomer(userId, mail);
     }
     //kibria
