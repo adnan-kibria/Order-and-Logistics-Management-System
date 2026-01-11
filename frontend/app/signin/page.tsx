@@ -27,17 +27,11 @@ export default function Login() {
     }
 
     try {
-        // const loginResp = await AuthService.signIn({ email, password });
-        // send credentials; backend will set an httpOnly cookie
         await AuthService.signIn({ email, password });
-
-        // fetch the current user from the server (reads cookie)
         const user = await AuthService.user();
 
         localStorage.setItem("role", user.role);
         localStorage.setItem("userId", user.sub.toString());
-        // localStorage.setItem("userId", loginResp.id?.toString?.() ?? "");
-        // localStorage.setItem("access_token", loginResp.access_token);
 
         if (user.role === "admin") {
             router.push("/admin/dashboard");
