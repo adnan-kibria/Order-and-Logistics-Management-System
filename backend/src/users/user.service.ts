@@ -1,9 +1,9 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Get, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entities/users.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUser } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateDeliverymanDto } from 'src/deliveryman/dto/create-deliveryman.dto';
@@ -12,7 +12,6 @@ import { DeliverymanInterface } from 'src/deliveryman/interface/deliveryman.inte
 import { DeliveryMen } from './entities/deliverymen.entity';
 import { InventoryManager } from './entities/inventory-manager.entity';
 import { InventoryManagerInterface } from 'src/inventory-manager/interface/inventory-manager.interface';
-import { del } from 'superagent';
 import { Customers } from 'src/customers/entities/customers.entity';
 import { Orders } from 'src/orders/entities/orders.entity';
 import { CreateAdmin } from './dto/create-admin.dto';
@@ -100,8 +99,6 @@ export class UserService {
         try {
             const user = await this.userRepository.findOne({
                 where: { email: email },
-                // relations: ['deliveryman', 'inventorymanager'],
-                // select: ['email']
             });
             if (!user) throw new BadRequestException('User not found');
 
@@ -217,5 +214,49 @@ export class UserService {
             throw error;
         }
 
+    }
+
+    //kibria
+    async findAllWithRelations(): Promise<any[]> {
+        try {
+            const users = await this.userRepository.find({
+                relations: ['customer', 'deliveryman', 'inventorymanager'],
+            });
+
+            return users.map((user) => {
+                let profile: any = null;
+                
+                // Check role and assign profile based on role
+                if (user.role === 'customer' && user.customer) {
+                    profile = {
+                        id: user.customer.id,
+                        name: user.customer.name,
+                        phone: user.customer.phone,
+                    };
+                } else if (user.role === 'deliveryman' && user.deliveryman) {
+                    profile = {
+                        id: user.deliveryman.id,
+                        name: user.deliveryman.name,
+                        phone: user.deliveryman.phone,
+                    };
+                } else if (user.role === 'inventory_manager' && user.inventorymanager) {
+                    profile = {
+                        id: user.inventorymanager.id,
+                        name: user.inventorymanager.name,
+                        phone: user.inventorymanager.phone,
+                    };
+                }
+
+                return {
+                    userId: user.userId,
+                    email: user.email,
+                    role: user.role,
+                    profile,
+                };
+            });
+        } catch (error) {
+            console.error('Error in findAllWithRelations:', error);
+            throw error;
+        }
     }
 }

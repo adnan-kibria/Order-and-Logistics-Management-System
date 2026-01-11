@@ -5,9 +5,6 @@ import { Users } from './entities/users.entity';
 import { CreateUser } from './dto/create-user.dto';
 import { CreateDeliverymanDto } from 'src/deliveryman/dto/create-deliveryman.dto';
 import { CreateInventoryManagerDto } from 'src/inventory-manager/dto/create-inventory-manager.dto';
-// import { CustomerGuard } from 'src/auth/customer.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { Role } from 'src/common/enums/role.enum';
 import { AdminGuard } from 'src/auth/admin.guard';
 import { CreateAdmin } from './dto/create-admin.dto';
 
@@ -34,6 +31,13 @@ export class UserController {
     @Get('allCustomerDetails')
     async allCustomerDetails(): Promise<Users[]> {
         return this.userService.allCustomerDetails();
+    }
+
+    //kibria
+    @UseGuards(AdminGuard)
+    @Get('with-relations')
+    async getAllUsersWithRelations(): Promise<any[]> {
+        return this.userService.findAllWithRelations();
     }
 
     @Get(':id')
