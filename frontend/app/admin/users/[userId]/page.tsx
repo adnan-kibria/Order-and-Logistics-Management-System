@@ -100,7 +100,7 @@ export default function UserDetailsPage() {
           href="/admin/users"
           className="text-indigo-600 hover:underline mt-4 inline-block font-medium"
         >
-          ← Back to Users
+          Back
         </Link>
       </div>
     );
@@ -122,7 +122,6 @@ export default function UserDetailsPage() {
         </div>
       </div>
 
-      {/* User Profile Card */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div className="flex items-start space-x-6">

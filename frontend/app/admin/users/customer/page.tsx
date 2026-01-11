@@ -9,7 +9,8 @@
 
 import { useState, useEffect } from "react";
 import { Trash2, User, Mail, Phone, ShoppingCart, Search, Eye, MapPin } from "lucide-react";
-import { UserService, User as UserType } from "../../../_services/user.service";
+import { UserService } from "../../../_services/user.service";
+import { User as UserType } from "../../../_interfaces/user.interface";
 // import toast from "react-hot-toast";
 import Link from "next/link";
 

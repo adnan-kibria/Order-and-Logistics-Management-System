@@ -4,34 +4,11 @@
  * Includes: fetching users, creating users (deliveryman/inventory manager), deleting users
  */
 
+import { CreateDeliverymanData } from "../_interfaces/create-deliverman-data.interface";
+import { CreateInventoryManagerData } from "../_interfaces/create-invmanager-data.interface";
+import { User } from "../_interfaces/user.interface";
 import api from "../lib/axios";
 
-export interface UserProfile {
-  id: number;
-  name: string;
-  phone: string;
-}
-
-export interface User {
-  userId: string;
-  email: string;
-  role: string;
-  profile: UserProfile | null;
-}
-
-export interface CreateDeliverymanData {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-}
-
-export interface CreateInventoryManagerData {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-}
 
 export const UserService = {
   /**
@@ -125,3 +102,4 @@ export const UserService = {
     return res.data;
   },
 };
+
