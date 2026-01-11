@@ -15,4 +15,7 @@ export class ProductService {
             }
         })
     }
+    async getAll(): Promise<Products[]> {
+        return await this.repo.find();
+    }
 }
