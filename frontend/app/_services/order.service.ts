@@ -53,11 +53,12 @@ export const orderService = {
     cancelOrder: (id: number) => api.patch(`/order/cancel-order/${id}`),
     processOrder: (id: number) => api.patch(`/order/process-order/${id}`),
 
-    // Assign + Auto Mail
-    assignAndMail: async (orderId: number, deliveryManId: number, email: string) => {
-        // 1. Assign in DB (your existing logic)
-        await api.patch(`/order/assign-deliveryman/${orderId}/${deliveryManId}`);
-        // 2. Send Email (your existing logic)
-        await api.post(`/order/sendMailToDeliveryMan/${orderId}`, { mail: email });
-    }
+    assignDeliveryman: (orderId: number, dmId: number) => 
+        api.patch(`/order/assign-deliveryman/${orderId}/${dmId}`),
+
+    sendMailToDM: (orderId: number, email: string) => 
+        api.post(`/order/sendMailToDeliveryMan/${orderId}/${email}`),
+
+    sendMailToCustomer: (userId: string, email: string) => 
+        api.post(`/order/sendMailToCustomer/${userId}/${email}`),
 }

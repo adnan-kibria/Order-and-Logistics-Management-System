@@ -1,121 +1,65 @@
 "use client";
 import { useState } from "react";
-import { Eye, Check, X, Truck, Loader2, Mail, Clock } from "lucide-react";
+import { Eye, Calendar, User, Package } from "lucide-react";
+import OrderViewModal from "./order-details-modal";
 import { orderService } from "../_services/order.service";
-import OrderViewModal from "../components/order-details-modal";
 
 export default function OrderTable({ initialOrders, deliverymen }: any) {
   const [orders, setOrders] = useState(initialOrders);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [loadingId, setLoadingId] = useState<number | null>(null);
 
   const refreshData = async () => {
     const updated = await orderService.getOrders();
     setOrders(updated);
   };
 
-  const handleAction = async (id: number, type: string) => {
-    setLoadingId(id);
-    try {
-      if (type === "confirm") await orderService.confirmOrder(id);
-      if (type === "cancel") await orderService.cancelOrder(id);
-      await refreshData();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Action failed");
-    } finally {
-      setLoadingId(null);
-    }
-  };
-
-  const handleAssign = async (orderId: number, dm: any) => {
-    if (!dm) return;
-    setLoadingId(orderId);
-    try {
-      await orderService.assignAndMail(orderId, dm.id, dm.user.email);
-      await refreshData();
-      alert("Deliveryman assigned and email notification sent!");
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Assignment failed");
-    } finally {
-      setLoadingId(null);
-    }
-  };
-
-  const getStatusStyle = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "delivered": return "bg-green-100 text-green-700 border-green-200";
-      case "cancelled": return "bg-red-100 text-red-700 border-red-200";
-      case "on the way": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "processing": return "bg-orange-100 text-orange-700 border-orange-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
+  const formatDate = (date: any) => date ? new Date(date).toLocaleString('en-GB') : "-";
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
+    <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50/50 border-b border-gray-200">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
             <tr>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">ID & Date</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Customer</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Amount</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Status</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Logistics</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-center">Manage</th>
+              <th className="px-6 py-4">Order ID & Date</th>
+              <th className="px-6 py-4">Customer</th>
+              <th className="px-6 py-4">Total Amount</th>
+              <th className="px-6 py-4">Cancelled By/At</th>
+              <th className="px-6 py-4">Delivered At</th>
+              <th className="px-6 py-4">Status</th>
+              <th className="px-6 py-4 text-center">View</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {orders.map((order: any) => (
-              <tr key={order.id} className="hover:bg-indigo-50/30 transition-colors">
+              <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4">
-                  <p className="font-bold text-gray-900">#{order.id}</p>
-                  <p className="text-[10px] text-gray-400 flex items-center gap-1 mt-1">
-                    <Clock size={10}/> {new Date(order.date).toLocaleDateString()}
-                  </p>
+                  <span className="font-bold text-gray-900">#{order.id}</span>
+                  <p className="text-[10px] text-gray-400">{formatDate(order.date)}</p>
                 </td>
-                <td className="px-6 py-4">
-                  <p className="text-sm font-medium text-gray-800">{order.customer?.name}</p>
-                  <p className="text-xs text-gray-500">{order.customer?.phone}</p>
+                <td className="px-6 py-4 font-medium">{order.customer?.name}</td>
+                <td className="px-6 py-4 font-mono font-bold text-indigo-600">Tk. {order.total}</td>
+                <td className="px-6 py-4 text-xs text-gray-500">
+                  {order.cancelledBy ? (
+                    <div>
+                      <p className="text-red-600 font-bold">{order.cancelledBy}</p>
+                      <p>{formatDate(order.cancelledAt)}</p>
+                    </div>
+                  ) : "-"}
                 </td>
-                <td className="px-6 py-4 font-mono font-bold text-indigo-600">${order.total}</td>
+                <td className="px-6 py-4 text-xs text-gray-500">{formatDate(order.deliveredAt)}</td>
                 <td className="px-6 py-4">
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border uppercase tracking-wider ${getStatusStyle(order.orderStatus?.name)}`}>
-                    {order.orderStatus?.name || "Placed"}
+                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                    order.orderStatus?.id === 7 ? "bg-red-100 text-red-700" : 
+                    order.orderStatus?.id === 9 ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                  }`}>
+                    {order.orderStatus?.status}
                   </span>
                 </td>
-                <td className="px-6 py-4">
-                  <select 
-                    disabled={loadingId === order.id || [7, 9].includes(order.orderStatus?.id)}
-                    className="text-xs bg-gray-50 border border-gray-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
-                    // Ensure the value defaults to an empty string if no deliveryman is assigned
-                    value={order.deliveryman?.userId || ""} 
-                    onChange={(e) => {
-                      const selectedId = e.target.value;
-                      // REMOVED parseInt because UUIDs are strings!
-                      const dm = deliverymen.find((d: any) => d.userId === selectedId);
-                      handleAssign(order.id, dm);
-                    }}
-                  >
-                    <option value="">Select Staff</option>
-                    {deliverymen.map((dm: any) => (
-                      // Ensure you use userId to match your backend entity
-                      <option key={dm.userId} value={dm.userId}>
-                        {dm.name || dm.email} 
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex justify-center gap-1">
-                    <button onClick={() => setSelectedOrder(order)} className="p-2 text-gray-600 hover:bg-white hover:shadow-md rounded-xl transition-all" title="View Detail"><Eye size={18}/></button>
-                    {order.orderStatus?.id !== 7 && order.orderStatus?.id !== 9 && (
-                      <>
-                        <button onClick={() => handleAction(order.id, "confirm")} className="p-2 text-green-600 hover:bg-green-50 rounded-xl" title="Confirm Order"><Check size={18}/></button>
-                        <button onClick={() => handleAction(order.id, "cancel")} className="p-2 text-red-600 hover:bg-red-50 rounded-xl" title="Cancel Order"><X size={18}/></button>
-                      </>
-                    )}
-                  </div>
+                <td className="px-6 py-4 text-center">
+                  <button onClick={() => setSelectedOrder(order)} className="p-2 bg-gray-100 hover:bg-indigo-600 hover:text-white rounded-lg transition-all">
+                    <Eye size={18}/>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -126,7 +70,9 @@ export default function OrderTable({ initialOrders, deliverymen }: any) {
       <OrderViewModal 
         isOpen={!!selectedOrder} 
         order={selectedOrder} 
+        deliverymen={deliverymen}
         onClose={() => setSelectedOrder(null)} 
+        onUpdate={refreshData}
       />
     </div>
   );
