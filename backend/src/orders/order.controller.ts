@@ -130,7 +130,7 @@ export class OrderController {
     }
 
     //kibria
-    @UseGuards(AdminGuard)
+    // @UseGuards(AdminGuard)
     @Get('get-all-orders')
     getAllOrdersWithoutFilter(): Promise<Orders[]> {
         return this.orderService.getAllOrdersWithoutFilter();

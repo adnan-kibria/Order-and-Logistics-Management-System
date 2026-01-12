@@ -82,8 +82,16 @@ export class UserService {
         return await this.userRepository.find();
     }
 
-    async findById(id: string): Promise<Users | null> {
-        return await this.userRepository.findOne({ where: { userId: id } });
+    async findById(id: string): Promise<Users> {
+        const user = await this.userRepository.findOne({
+            where: { userId: id }
+        });
+
+        if (!user) {
+            throw new NotFoundException(`User with ID ${id} not found.`);
+        }
+
+        return user;
     }
 
     async findOne(userEmail: string): Promise<Users | null> {
@@ -258,5 +266,11 @@ export class UserService {
             console.error('Error in findAllWithRelations:', error);
             throw error;
         }
+    }
+
+    async getAllDeliveryMen(): Promise<Users[]> {
+        return await this.userRepository.find({
+            where: {role: 'deliveryman'},
+        });
     }
 }

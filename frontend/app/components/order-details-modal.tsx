@@ -23,7 +23,7 @@ export default function OrderViewModal({ order, isOpen, onClose }: any) {
             </div>
             <div className="space-y-2">
               <h3 className="font-semibold text-gray-400 flex items-center gap-2"><MapPin size={16}/> Delivery</h3>
-              <p className="text-sm">{order.customer?.shippingAddress?.location}, {order.customer?.shippingAddress?.city}</p>
+              <p className="text-sm">{order.customer?.shippingAddress?.details}, {order.customer?.shippingAddress?.city}, {order.customer?.shippingAddress?.location}</p>
             </div>
           </div>
 

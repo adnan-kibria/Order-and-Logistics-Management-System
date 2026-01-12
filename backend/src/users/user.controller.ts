@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Param, Delete, UsePipes, ValidationPipe, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UsePipes, ValidationPipe, UseGuards, Req, ParseUUIDPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Users } from './entities/users.entity';
 import { CreateUser } from './dto/create-user.dto';
@@ -40,8 +40,13 @@ export class UserController {
         return this.userService.findAllWithRelations();
     }
 
+    @Get('all-deliverymen')
+    async getAllDeliveryMen() {
+        return this.userService.getAllDeliveryMen();
+    }
+
     @Get(':id')
-    async getUserById(@Param('id') id: string): Promise<Users | null> {
+    async getUserById(@Param('id', ParseUUIDPipe) id: string): Promise<Users | null> {
         return this.userService.findById(id);
     }
 

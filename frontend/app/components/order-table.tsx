@@ -31,7 +31,7 @@ export default function OrderTable({ initialOrders, deliverymen }: any) {
     if (!dm) return;
     setLoadingId(orderId);
     try {
-      await OrderService.assignAndMail(orderId, dm.id, dm.user.email);
+      await orderService.assignAndMail(orderId, dm.id, dm.user.email);
       await refreshData();
       alert("Deliveryman assigned and email notification sent!");
     } catch (err: any) {
@@ -88,15 +88,21 @@ export default function OrderTable({ initialOrders, deliverymen }: any) {
                   <select 
                     disabled={loadingId === order.id || [7, 9].includes(order.orderStatus?.id)}
                     className="text-xs bg-gray-50 border border-gray-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
-                    value={order.deliveryman?.id || ""}
+                    // Ensure the value defaults to an empty string if no deliveryman is assigned
+                    value={order.deliveryman?.userId || ""} 
                     onChange={(e) => {
-                      const dm = deliverymen.find((d: any) => d.id === parseInt(e.target.value));
+                      const selectedId = e.target.value;
+                      // REMOVED parseInt because UUIDs are strings!
+                      const dm = deliverymen.find((d: any) => d.userId === selectedId);
                       handleAssign(order.id, dm);
                     }}
                   >
                     <option value="">Select Staff</option>
                     {deliverymen.map((dm: any) => (
-                      <option key={dm.id} value={dm.id}>{dm.name}</option>
+                      // Ensure you use userId to match your backend entity
+                      <option key={dm.userId} value={dm.userId}>
+                        {dm.name || dm.email} 
+                      </option>
                     ))}
                   </select>
                 </td>
