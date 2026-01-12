@@ -173,13 +173,15 @@ export default function UsersPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center">
-                          <Mail className="w-5 h-5 text-indigo-600" />
+                          <User className="w-5 h-5 text-indigo-600" />
                         </div>
                         <div>
-                          <Link href={`/admin/users/${user.userId}`} className="text-sm font-semibold text-gray-900 hover:underline">
-                            {user.email}
+                          <Link
+                            href={`/admin/users/${user.userId}`}
+                            className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+                          >
+                            {user.profile?.name || user.email || "No Name"}
                           </Link>
-                          <p className="text-xs text-gray-500">ID: {user.userId.slice(0, 8)}</p>
                         </div>
                       </div>
                     </td>
