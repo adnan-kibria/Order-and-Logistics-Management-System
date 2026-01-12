@@ -84,7 +84,7 @@ export const UserService = {
       // User object
       email: data.email,
       password: data.password,
-      role: "inventory_manager",
+      role: "inventorymanager",
       // Empty deliveryman object (not used for inventory manager)
       // Inventory manager object
       name: data.name,

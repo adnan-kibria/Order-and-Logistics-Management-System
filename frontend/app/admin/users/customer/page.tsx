@@ -114,74 +114,91 @@ export default function CustomerPage() {
       </div>
 
       {/* Customers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCustomers.length === 0 ? (
-          <div className="col-span-full">
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-              <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 font-medium text-lg">No customers found</p>
-              <p className="text-sm text-gray-400 mt-2">
-                {searchTerm ? "Try adjusting your search" : "No customers registered yet"}
-              </p>
-            </div>
-          </div>
-        ) : (
-          filteredCustomers.map((customer) => (
-            <div
-              key={customer.userId}
-              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center">
-                    <User className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {customer.profile?.name || customer.email || "No Name"}
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      ID: {customer.userId ? customer.userId.slice(0, 8) + "..." : "N/A"}
-                    </p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-semibold">
-                  CUSTOMER
-                </span>
-              </div>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Mail className="w-4 h-4" />
-                  <span className="truncate">{customer.email}</span>
-                </div>
-                {customer.profile?.phone && (
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <Phone className="w-4 h-4" />
-                    <span>{customer.profile.phone}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <Link
-                  href={`/admin/users/${customer.userId}`}
-                  className="flex items-center space-x-2 px-3 py-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm font-medium"
-                >
-                  <Eye className="w-4 h-4" />
-                  <span>View Details</span>
-                </Link>
-                <button
-                  onClick={() => handleDeleteCustomer(customer.email)}
-                  className="flex items-center space-x-2 px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Delete</span>
-                </button>
-              </div>
-            </div>
-          ))
-        )}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-blue-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Deliveryman
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {filteredCustomers.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center">
+                      <User className="w-12 h-12 text-gray-400 mb-3" />
+                      <p className="text-gray-500 font-medium">No customers found</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        {searchTerm ? "Try adjusting your search" : "Get started by adding a deliveryman"}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredCustomers.map((customer) => (
+                  <tr key={customer.userId} className="hover:bg-blue-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center shadow-sm">
+                          <User className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <Link
+                            href={`/admin/users/${customer.userId}`}
+                            className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+                          >
+                            {customer.profile?.name || customer.email || "No Name"}
+                          </Link>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Mail className="w-4 h-4" />
+                          <span className="truncate">{customer.email}</span>
+                        </div>
+                        {customer.profile?.phone && (
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Phone className="w-4 h-4" />
+                            <span>{customer.profile.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/admin/users/${customer.userId}`}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="View details"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteCustomer(customer.email)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete customer"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

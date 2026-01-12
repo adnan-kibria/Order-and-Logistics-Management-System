@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Package, Mail, Phone, Search, Eye } from "lucide-react";
+import { Plus, Trash2, Package, Mail, Phone, Search, Eye, Truck, User } from "lucide-react";
 import { UserService } from "../../../_services/user.service";
 import { User as UserType } from "../../../_interfaces/user.interface";
 //import toast from "react-hot-toast";
@@ -18,33 +18,11 @@ export default function InventoryManagerPage() {
   const [managers, setManagers] = useState<UserType[]>([]);
   const [filteredManagers, setFilteredManagers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-  });
 
   useEffect(() => {
     fetchManagers();
   }, []);
-
-  useEffect(() => {
-    if (searchTerm === "") {
-      setFilteredManagers(managers);
-    } else {
-      setFilteredManagers(
-        managers.filter(
-          (manager) =>
-            manager.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            manager.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            manager.profile?.phone?.includes(searchTerm)
-        )
-      );
-    }
-  }, [searchTerm, managers]);
 
   const fetchManagers = async () => {
     try {
@@ -52,7 +30,7 @@ export default function InventoryManagerPage() {
       const data = await UserService.getAllUsersWithRelations();
       // Ensure data is an array and filter inventory managers
       if (Array.isArray(data)) {
-        const managerData = data.filter((user) => user.role === "inventory_manager");
+        const managerData = data.filter((user) => user.role === "inventorymanager");
         setManagers(managerData);
         setFilteredManagers(managerData);
       } else {
@@ -71,18 +49,6 @@ export default function InventoryManagerPage() {
     }
   };
 
-  const handleAddManager = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await UserService.createInventoryManager(formData);
-      //toast.success("Inventory Manager created successfully!");
-      setShowAddModal(false);
-      setFormData({ name: "", email: "", password: "", phone: "" });
-      fetchManagers();
-    } catch (error: any) {
-    //   toast.error("Failed to create inventory manager: " + (error.response?.data?.message || error.message));
-    }
-  };
 
   const handleDeleteManager = async (email: string) => {
     if (!confirm("Are you sure you want to delete this inventory manager?")) {
@@ -134,7 +100,7 @@ export default function InventoryManagerPage() {
       </div>
 
       {/* Managers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredManagers.length === 0 ? (
           <div className="col-span-full">
             <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
@@ -201,7 +167,93 @@ export default function InventoryManagerPage() {
               </div>
             </div>
           ))
-        )}
+        )} */}
+      {/* </div> */}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-blue-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Inventory Manager
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {filteredManagers.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center">
+                      <User className="w-12 h-12 text-gray-400 mb-3" />
+                      <p className="text-gray-500 font-medium">No inventory managers found</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        {searchTerm ? "Try adjusting your search" : "Get started by adding an inventory manager"}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredManagers.map((manager) => (
+                  <tr key={manager.userId} className="hover:bg-blue-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center shadow-sm">
+                          <User className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <Link
+                            href={`/admin/users/${manager.userId}`}
+                            className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+                          >
+                            {manager.profile?.name || manager.email || "No Name"}
+                          </Link>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Mail className="w-4 h-4" />
+                          <span className="truncate">{manager.email}</span>
+                        </div>
+                        {manager.profile?.phone && (
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Phone className="w-4 h-4" />
+                            <span>{manager.profile.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/admin/users/${manager.userId}`}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="View details"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteManager(manager.email)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete manager"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

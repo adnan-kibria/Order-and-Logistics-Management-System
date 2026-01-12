@@ -1,50 +1,20 @@
-/**
- * Deliverymen Management Page
- * Displays only deliverymen with their delivery statistics
- * Allows admin to view deliveryman details, add new deliverymen, and delete deliverymen
- * Uses CSR (Client-Side Rendering) for dynamic data fetching
- */
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Truck, Mail, Phone, Search, Eye, Package } from "lucide-react";
 import { UserService } from "../../../_services/user.service";
 import { User as UserType } from "../../../_interfaces/user.interface";
-// import toast from "react-hot-toast";
 import Link from "next/link";
 
 export default function DeliverymanPage() {
   const [deliverymen, setDeliverymen] = useState<UserType[]>([]);
   const [filteredDeliverymen, setFilteredDeliverymen] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-  });
 
   useEffect(() => {
     fetchDeliverymen();
   }, []);
-
-  useEffect(() => {
-    if (searchTerm === "") {
-      setFilteredDeliverymen(deliverymen);
-    } else {
-      setFilteredDeliverymen(
-        deliverymen.filter(
-          (deliveryman) =>
-            deliveryman.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            deliveryman.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            deliveryman.profile?.phone?.includes(searchTerm)
-        )
-      );
-    }
-  }, [searchTerm, deliverymen]);
 
   const fetchDeliverymen = async () => {
     try {
@@ -71,18 +41,6 @@ export default function DeliverymanPage() {
     }
   };
 
-  const handleAddDeliveryman = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await UserService.createDeliveryman(formData);
-    //   toast.success("Deliveryman created successfully!");
-      setShowAddModal(false);
-      setFormData({ name: "", email: "", password: "", phone: "" });
-      fetchDeliverymen();
-    } catch (error: any) {
-      // toast.error("Failed to create deliveryman: " + (error.response?.data?.message || error.message));
-    }
-  };
 
   const handleDeleteDeliveryman = async (email: string) => {
     if (!confirm("Are you sure you want to delete this deliveryman?")) {
@@ -178,9 +136,6 @@ export default function DeliverymanPage() {
                           >
                             {deliveryman.profile?.name || deliveryman.email || "No Name"}
                           </Link>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            ID: {deliveryman.userId ? deliveryman.userId.slice(0, 8) + "..." : "N/A"}
-                          </p>
                         </div>
                       </div>
                     </td>
