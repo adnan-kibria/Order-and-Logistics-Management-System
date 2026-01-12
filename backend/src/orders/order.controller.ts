@@ -135,4 +135,10 @@ export class OrderController {
     getAllOrdersWithoutFilter(): Promise<Orders[]> {
         return this.orderService.getAllOrdersWithoutFilter();
     }
+
+    @UseGuards(AdminGuard)
+    @Get('all-deliverymen')
+    async getAll() {
+        return await this.orderService.findAllDeliveryMen();
+    }
 }

@@ -1,9 +1,18 @@
 'use client'
 import Link from 'next/link'
 import { useCart } from '../../_context/CartContext';
+import { AuthService } from '@/app/_services/auth.service';
+import { useRouter } from 'next/navigation';
 
 export default function CustomerNavbar() {
     const { cart } = useCart();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        const res = await AuthService.logout();
+        console.log("Logout Response:", res);
+        router.push('/signin');
+    }
 
     const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
@@ -24,7 +33,7 @@ export default function CustomerNavbar() {
                 <Link className='btn btn-primary' href='check-out'>
                     Check-out ({cart.length})
                 </Link>
-                <button className="btn btn-error">Logout</button>
+                <button onClick={handleLogout} className="btn btn-error">Logout</button>
             </div>
         </div>
     );

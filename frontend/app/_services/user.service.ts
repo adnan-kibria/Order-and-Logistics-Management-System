@@ -4,34 +4,11 @@
  * Includes: fetching users, creating users (deliveryman/inventory manager), deleting users
  */
 
+import { CreateDeliverymanData } from "../_interfaces/create-deliverman-data.interface";
+import { CreateInventoryManagerData } from "../_interfaces/create-invmanager-data.interface";
+import { User } from "../_interfaces/user.interface";
 import api from "../lib/axios";
 
-export interface UserProfile {
-  id: number;
-  name: string;
-  phone: string;
-}
-
-export interface User {
-  userId: string;
-  email: string;
-  role: string;
-  profile: UserProfile | null;
-}
-
-export interface CreateDeliverymanData {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-}
-
-export interface CreateInventoryManagerData {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-}
 
 export const UserService = {
   /**
@@ -74,8 +51,13 @@ export const UserService = {
    * Get user profile by admin (with detailed info)
    */
   getUserProfileByAdmin: async (userId: string): Promise<any> => {
-    const res = await api.get(`/users/admin/${userId}`);
-    return res.data;
+    try {
+      const res = await api.get(`/users/admin/${userId}`);
+      return res.data;
+    }
+    catch (err) {
+      throw err;
+    }
   },
 
   /**
@@ -107,7 +89,7 @@ export const UserService = {
       // User object
       email: data.email,
       password: data.password,
-      role: "inventory_manager",
+      role: "inventorymanager",
       // Empty deliveryman object (not used for inventory manager)
       // Inventory manager object
       name: data.name,
@@ -125,3 +107,4 @@ export const UserService = {
     return res.data;
   },
 };
+

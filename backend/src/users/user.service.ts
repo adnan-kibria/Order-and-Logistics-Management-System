@@ -239,7 +239,7 @@ export class UserService {
                         name: user.deliveryman.name,
                         phone: user.deliveryman.phone,
                     };
-                } else if (user.role === 'inventory_manager' && user.inventorymanager) {
+                } else if (user.role === 'inventorymanager' && user.inventorymanager) {
                     profile = {
                         id: user.inventorymanager.id,
                         name: user.inventorymanager.name,

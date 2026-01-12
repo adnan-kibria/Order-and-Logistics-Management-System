@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Param, Delete, UsePipes, ValidationPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UsePipes, ValidationPipe, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Users } from './entities/users.entity';
 import { CreateUser } from './dto/create-user.dto';
@@ -53,9 +53,12 @@ export class UserController {
     }
 
     //kibria
-    @UseGuards(AdminGuard)
+    // @UseGuards(AdminGuard)
     @Get('admin/:userId')
-    async viewUserProfile(@Param('user_id') user_id: string): Promise<any> {
+    async viewUserProfile(@Req() req, @Param('userId') user_id: string): Promise<any> {
+        const token = req.cookies['jwt'];
+        console.log("Token:", token);
+        console.log("Fetching profile for User ID:", user_id);
         return this.userService.getProfileByAdmin(user_id);
     }
 
