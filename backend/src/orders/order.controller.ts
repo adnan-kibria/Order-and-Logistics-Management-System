@@ -14,21 +14,11 @@ import { PlaceOrderDTO } from "./dto/place-orderV2.dto";
 export class OrderController {
     constructor(private readonly orderService: OrderService) { }
 
-    // Munna
-    // @UsePipes(new ValidationPipe())
-    // @UseGuards(CustomerGuard)
-    // @Post('place')
-    // placeOrder(@Req() req, @Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
-    //     const token: string = req.cookies['jwt'];
-
-    //     console.log('Token in placeOrder:', token);
-    //     return this.orderService.placeOrder(placeOrderDTO, token);
-    // }
-
     @UseGuards(CustomerGuard)
     @Post('place')
     async placeOrder(@Req() req, @Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         const token: string = req.cookies['jwt'];
+        // console.log('Token in placeOrder:', token);
         const cId = await this.orderService.user(token);
 
         return this.orderService.placeOrderV2(placeOrderDTO, cId);
@@ -53,8 +43,11 @@ export class OrderController {
     }
     // Munna
     @UseGuards(CustomerGuard)
-    @Get('myOrders/:cId')
-    ViewAllMyOrders(@Param('cId', ParseIntPipe) cId: number): Promise<Orders[]> {
+    @Get('my-orders')
+    async ViewAllMyOrders(@Req() req): Promise<Orders[]> {
+        const token: string = req.cookies['jwt'];
+        console.log('Token in placeOrder:', token);
+        const cId = await this.orderService.user(token);
         return this.orderService.viewAllMyOrders(cId);
     }
 

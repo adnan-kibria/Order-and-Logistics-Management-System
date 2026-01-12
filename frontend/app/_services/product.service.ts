@@ -1,3 +1,4 @@
+import { ICartItem } from "../_interfaces/cart-item.interface";
 import api from "../lib/axios";
 
 export const ProductsService = {
@@ -9,5 +10,16 @@ export const ProductsService = {
         catch (err) {
             return err;
         }
+    },
+
+    getCartProducts: async (cartProducts: ICartItem[]) => {
+        try {
+            const res = await api.post("products/cart-products", cartProducts);
+            return res.data;
+        }
+        catch (err) {
+            return err;
+        }
     }
+
 }

@@ -7,7 +7,7 @@ export default async function Products() {
     console.log(products);
 
     return (
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-3 gap-10">
             {
                 products.length > 0 ? (
                     products.map(product => (

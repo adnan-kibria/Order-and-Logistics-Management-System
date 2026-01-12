@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 // import { CreateProduct } from "./dto/create-product.dto";
 import { ProductService } from "./product.service";
 import { Products } from "./entities/products.entity";
+import { CheckoutCartProductsDto } from "./dto/cart-products.dto";
 // import { Products } from "./entities/products.entity";
 
 @Controller('products')
@@ -16,5 +17,10 @@ export class ProductController {
     @Get('all')
     getAll(): Promise<Products[]> {
         return this.productService.getAll();
+    }
+
+    @Post('cart-products')
+    getCartProducts(@Body() cartProducts: CheckoutCartProductsDto[]): Promise<Products[]> {
+        return this.productService.getCartProducts(cartProducts);
     }
 }
