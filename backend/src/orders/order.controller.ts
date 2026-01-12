@@ -24,6 +24,14 @@ export class OrderController {
         return this.orderService.placeOrderV2(placeOrderDTO, cId);
     }
 
+    //kibria
+      //kibria
+    // @UseGuards(AdminGuard)
+    @Get('get-all-orders')
+    getAllOrdersWithoutFilter(): Promise<Orders[]> {
+        return this.orderService.getAllOrdersWithoutFilter();
+    }
+
     @Get(':oId')
     getOrderById(@Param('oId', ParseIntPipe) oId: number): Promise<Orders> {
         return this.orderService.getOrderById(oId);
@@ -127,13 +135,6 @@ export class OrderController {
     @Get('get-orders/:statusId')
     getAllOrders(@Param('statusId', ParseIntPipe) statusId: number): Promise<Orders[]> {
         return this.orderService.getAllOrders(statusId);
-    }
-
-    //kibria
-    // @UseGuards(AdminGuard)
-    @Get('get-all-orders')
-    getAllOrdersWithoutFilter(): Promise<Orders[]> {
-        return this.orderService.getAllOrdersWithoutFilter();
     }
 
     @UseGuards(AdminGuard)
