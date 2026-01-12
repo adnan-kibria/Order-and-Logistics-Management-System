@@ -24,11 +24,11 @@ export class OrderController {
         return this.orderService.placeOrderV2(placeOrderDTO, cId);
     }
 
-    @Post('customer')
-    @UseGuards(CustomerGuard)
-    getCustomer() {
-        return "customer";
+    @Get(':oId')
+    getOrderById(@Param('oId', ParseIntPipe) oId: number): Promise<Orders> {
+        return this.orderService.getOrderById(oId);
     }
+
     // Munna
     @UseGuards(CustomerGuard)
     @Get('track/:cId')
@@ -42,13 +42,13 @@ export class OrderController {
         return this.orderService.viewCancelledOrders(cId)
     }
     // Munna
-    @UseGuards(CustomerGuard)
-    @Get('my-orders')
+    // @UseGuards(CustomerGuard)
+    @Post('my-orders')
     async ViewAllMyOrders(@Req() req): Promise<Orders[]> {
         const token: string = req.cookies['jwt'];
         console.log('Token in placeOrder:', token);
-        const cId = await this.orderService.user(token);
-        return this.orderService.viewAllMyOrders(cId);
+        // const cId = await this.orderService.user(token);
+        return this.orderService.viewAllMyOrders(8); //temporary cId=8
     }
 
     @Get('customers/:oId')
