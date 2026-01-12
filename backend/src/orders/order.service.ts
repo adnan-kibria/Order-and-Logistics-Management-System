@@ -153,7 +153,18 @@ export class OrderService {
     }
 
 
-
+    //Munna
+    async getOrderById(oId: number): Promise<Orders> {
+        const order = await this.orderRepo.findOne({
+            relations
+                : ['customer', 'orderStatus', 'orderDetails', 'orderDetails.product','customer.shippingAddress'],
+            where: { id: oId },
+        });
+        if (!order) {
+            throw new Error('Order not Exist');
+        }
+        return order;
+    }
 
     // Munna
     async viewAllMyOrders(id: number): Promise<Orders[]> {
