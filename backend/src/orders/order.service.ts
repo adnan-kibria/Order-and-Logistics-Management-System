@@ -531,5 +531,12 @@ export class OrderService {
             throw error;
         }
     }
+
+    async findAllDeliveryMen(): Promise<DeliveryMen[]> {
+        return await this.deliverymenRepo.find({
+            relations: ['user'],
+            order: { name: 'ASC' }
+        });
+    }
 }
 
