@@ -34,7 +34,7 @@ export class UserController {
     }
 
     //kibria
-    @UseGuards(AdminGuard)
+    //@UseGuards(AdminGuard)
     @Get('with-relations')
     async getAllUsersWithRelations(): Promise<any[]> {
         return this.userService.findAllWithRelations();

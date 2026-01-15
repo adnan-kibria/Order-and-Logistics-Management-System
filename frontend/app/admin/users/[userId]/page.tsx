@@ -1,15 +1,10 @@
 // app/admin/users/[userId]/page.tsx
 
-import {
-  ArrowLeft, Mail, Phone, User, Shield, Truck,
-  Package, ShoppingCart, Calendar, MapPin, TrendingUp
-} from "lucide-react";
+import { ArrowLeft, Mail, Phone, User, Shield, Truck,Package, ShoppingCart, Calendar, MapPin, TrendingUp} from "lucide-react";
 import { UserService } from "../../../_services/user.service";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
 
-// Helper functions moved outside the component
 const getRoleIcon = (role: string) => {
   const r = role?.toLowerCase().replace("_", "") || "";
   switch (r) {
@@ -32,37 +27,28 @@ const getRoleBadgeColor = (role: string) => {
   }
 };
 
-// 1. Change the component to an async function (Server Component)
 export default async function UserDetailsPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
   console.log("Fetching details for User ID:", userId); 
   let user = null;
 
   try {
-    // 2. Fetch data directly on the server
-    // Note: If your service requires a token, you'd get it like this:
-    // const cookieStore = cookies();
-    // const token = cookieStore.get('auth_token')?.value;
     user = await UserService.getUserProfileByAdmin(userId);
     console.log("Fetched User Data:", user);  
   } catch (error) {
     console.error("Failed to fetch user:", error);
   }
 
-  // 3. Handle 404
   if (!user) {
     notFound();
   }
 
-  // Normalize data access
   const nRole = user.role?.toLowerCase().replace("_", "") || "";
   const profile = user.profile || {};
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center space-x-4">
-        {/* Note: 'router.back()' is client-side. Using Link for SSR standard */}
         <Link
           href="/admin/users"
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -74,8 +60,6 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
           <p className="text-gray-600 mt-1">View comprehensive user information (SSR)</p>
         </div>
       </div>
-
-      {/* Main Profile Card */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div className="flex items-start space-x-6">
@@ -111,8 +95,6 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
           </div>
         </div>
       </div>
-
-      {/* Role-Specific Information Cards */}
       {nRole === "customer" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
@@ -171,7 +153,6 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
         </div>
       )}
 
-      {/* Footer Actions */}
       <div className="flex justify-end">
         <Link
           href="/admin/users"
