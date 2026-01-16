@@ -95,7 +95,7 @@ export default function SideBar() {
       </button>
       {sidebarOpen && <div className="fixed inset-0 bg-black/20 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform lg:translate-x-0 lg:static lg:block",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-indigo-500 shadow-2xl transform transition-transform lg:translate-x-0 lg:static lg:block",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="h-full flex flex-col p-4">
