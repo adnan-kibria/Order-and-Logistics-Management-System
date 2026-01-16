@@ -48,7 +48,7 @@ export default function AdminDashboard() {
         <StatCard title="Total Users" value={stats?.totalUsers || 0} icon={Users} />
         <StatCard 
           title="Total Revenue" 
-          value={`$${Number(stats?.totalRevenue || 0).toFixed(2)}`} 
+          value={`Tk. ${Number(stats?.totalRevenue || 0).toFixed(2)}`} 
           icon={Wallet} 
         />
       </div>
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customer?.name || "N/A"}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      ${Number(order.total || 0).toFixed(2)}
+                      Tk. {Number(order.total || 0).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.orderStatus?.status)}`}>
