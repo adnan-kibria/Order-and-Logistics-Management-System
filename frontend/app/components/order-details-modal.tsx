@@ -6,17 +6,14 @@ import { orderService } from "../_services/order.service";
 export default function OrderViewModal({ order, isOpen, onClose, deliverymen, onUpdate }: any) {
   const [loading, setLoading] = useState(false);
   const [emails, setEmails] = useState({ 
-    customer: order?.customer?.user?.email || order?.customer?.email || "", 
-    staff: order?.deliveryman?.user?.email || "" 
+    customer: order?.customer?.email || "", 
+    staff: "" 
   });
 
   if (!isOpen || !order) return null;
 
-  // Shipping Address Lookup based on your Entities
-  const addr = order.customer?.shippingAddress;
-  const displayAddress = addr 
-    ? `${addr.details || ''} ${addr.location || ''} ${addr.city || ''}`.trim() 
-    : null;
+  const addr = order.customer?.shippingAddress || order.profile?.shippingAddress;
+  const fullAddress = addr ? `${addr.details || ''} ${addr.location || ''} ${addr.city || ''}`.trim() : null;
 
   const handleAction = async (actionFn: () => Promise<any>, successMsg: string) => {
     setLoading(true);
@@ -35,8 +32,9 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
     if (!dmId) return;
     handleAction(async () => {
       await orderService.assignDeliveryman(order.id, parseInt(dmId));
-      const dm = deliverymen.find((d: any) => (d.id === parseInt(dmId)));
-      setEmails(prev => ({ ...prev, staff: dm?.user?.email || "" }));
+      // Auto-fill the staff email field when a name is selected
+      const dm = deliverymen.find((d: any) => (d.userId || d.id) === parseInt(dmId));
+      setEmails(prev => ({ ...prev, staff: dm?.email || dm?.user?.email || "" }));
     }, "Deliveryman assigned!");
   };
 
@@ -55,50 +53,41 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
 
         <div className="p-6 overflow-y-auto grid md:grid-cols-2 gap-8">
           
+          {/* Column 1: Customer & Address */}
           <div className="space-y-6">
-            {/* Customer Section */}
             <section>
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                 <User size={14}/> Customer
               </h3>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                 <p className="font-bold">{order.customer?.name || "No Name"}</p>
-                <p className="text-sm text-gray-600 flex items-center gap-1"><Mail size={12}/> {order.customer?.user?.email || order.customer?.email}</p>
+                <p className="text-sm text-gray-600 flex items-center gap-1"><Mail size={12}/> {order.customer?.email}</p>
                 
                 <div className="mt-3 pt-3 border-t border-gray-200">
                   <p className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1 mb-1">
                     <MapPin size={10}/> Shipping To
                   </p>
                   <p className="text-sm text-gray-700 leading-snug">
-                    {displayAddress || <span className="text-red-400 italic">No address found in DB</span>}
+                    {fullAddress || <span className="text-red-400 italic">No address provided</span>}
                   </p>
                 </div>
               </div>
             </section>
 
-            {/* Items Section - FIXED LOGIC HERE */}
             <section>
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Package size={14}/> Items Summary
+                <Package size={14}/> Total
               </h3>
               <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
-                <div className="divide-y max-h-60 overflow-y-auto">
-                  {/* We check both cases for property naming */}
-                  {(order.orderDetails || order.order_details)?.length > 0 ? (
-                    (order.orderDetails || order.order_details).map((item: any) => (
-                      <div key={item.id} className="p-3 flex justify-between items-center text-sm">
-                        <span className="font-medium text-gray-700">
-                          {item.product?.name || "Unknown Product"} 
-                          <span className="text-gray-400 text-xs ml-2 font-bold">×{item.qty}</span>
-                        </span>
-                        <span className="text-indigo-600 font-bold">Tk {item.orderPrice}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center text-gray-400 text-sm italic">No items found for this order</div>
-                  )}
+                <div className="divide-y max-h-48 overflow-y-auto">
+                  {order.orderDetails?.map((item: any) => (
+                    <div key={item.id} className="p-3 flex justify-between items-center text-sm">
+                      <span className="font-medium">{item.product?.name} <span className="text-gray-400 text-xs ml-1">×{item.qty}</span></span>
+                      <span className="text-gray-600 font-semibold">Tk {item.orderPrice}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="p-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center font-bold text-gray-900">
+                <div className="p-3 bg-white text-gray flex justify-between items-center font-bold">
                   <span className="text-xs uppercase">Grand Total</span>
                   <span className="text-lg">Tk {order.total}</span>
                 </div>
@@ -106,7 +95,7 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
             </section>
           </div>
 
-          {/* Column 2: Management */}
+          {/* Column 2: Management & Notifications */}
           <div className="space-y-6">
             <section className="space-y-4">
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -114,6 +103,7 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
               </h3>
               
               <div className="space-y-3">
+                {/* Select by Name */}
                 <div>
                   <label className="text-[10px] font-bold text-gray-500 block mb-1">Assign Delivery Staff</label>
                   <select 
@@ -124,8 +114,9 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                   >
                     <option value="">-- Select by Name --</option>
                     {deliverymen.map((dm: any) => (
-                      <option key={dm.id} value={dm.id}>
-                        {dm.user?.name || dm.name || dm.user?.email}
+                      <option key={dm.userId || dm.id} value={dm.userId || dm.id}>
+                        {/* Prioritizes Name over Email */}
+                        {dm.profile?.name || dm.name || dm.email}
                       </option>
                     ))}
                   </select>
@@ -140,15 +131,15 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
             </section>
 
             <section className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-               <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Notifications</h3>
+               <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Send Email Notifications</h3>
                <div className="space-y-3">
                  <div className="flex gap-2">
                    <input className="flex-1 p-2 text-xs border rounded bg-white" value={emails.customer} onChange={e => setEmails({...emails, customer: e.target.value})} placeholder="Customer Email" />
-                   <button onClick={() => handleAction(async () => orderService.sendMailToCustomer(order.customer.userId, emails.customer), "Sent!")} className="p-2 bg-indigo-500 text-white rounded"><Send size={14}/></button>
+                   <button onClick={() => handleAction(async () => orderService.sendMailToCustomer(order.customer.userId, emails.customer), "Sent!")} className="p-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors" title="Send to Customer"><Send size={14}/></button>
                  </div>
                  <div className="flex gap-2">
-                   <input className="flex-1 p-2 text-xs border rounded bg-white" value={emails.staff} onChange={e => setEmails({...emails, staff: e.target.value})} placeholder="Staff Email" />
-                   <button onClick={() => handleAction(async () => orderService.sendMailToDM(order.id, emails.staff), "Sent!")} className="p-2 bg-gray-700 text-white rounded"><Send size={14}/></button>
+                   <input className="flex-1 p-2 text-xs border rounded bg-white" value={emails.staff} onChange={e => setEmails({...emails, staff: e.target.value})} placeholder="Staff Email (Auto-filled)" />
+                   <button onClick={() => handleAction(async () => orderService.sendMailToDM(order.id, emails.staff), "Sent!")} className="p-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors" title="Send to Staff"><Send size={14}/></button>
                  </div>
                </div>
             </section>
