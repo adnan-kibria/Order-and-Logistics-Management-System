@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Truck, Package, X, AlertCircle } from "lucide-react";
-import { AddUserModalProps } from "../_interfaces/user-modal-props.interface";
+import { AddUserModalProps } from "../_interfaces/user/user-modal-props.interface";
 
 export default function AddUserModal({
   isOpen,

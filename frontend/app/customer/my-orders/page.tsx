@@ -1,4 +1,4 @@
-import { IOrder } from "@/app/_interfaces/order.interface";
+import { IOrder } from "@/app/_interfaces/order/order.interface";
 import { orderService } from "@/app/_services/order.service";
 import ViewDetailsBtn from "@/app/components/view-details-btn";
 import { EyeIcon } from "@heroicons/react/24/outline";

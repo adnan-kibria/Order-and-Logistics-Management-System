@@ -1,40 +1,95 @@
 'use client'
+
 import Link from 'next/link'
-import { useCart } from '../../_context/CartContext';
-import { AuthService } from '@/app/_services/auth.service';
-import { useRouter } from 'next/navigation';
+import { useCart } from '../../_context/CartContext'
+import { AuthService } from '@/app/_services/auth.service'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function CustomerNavbar() {
-    const { cart } = useCart();
-    const router = useRouter();
+    const { cart } = useCart()
+    const router = useRouter()
+    const pathname = usePathname()
 
     const handleLogout = async () => {
-        const res = await AuthService.logout();
-        console.log("Logout Response:", res);
-        router.push('/signin');
+        await AuthService.logout()
+        router.push('/signin')
     }
 
-    const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+    const navLinkClass = (path: string) => {
+        const isActive = pathname === path
+
+        return `
+            px-4 py-2 rounded-full border border-red-900 font-medium
+            transition-all duration-300 ease-in-out
+            hover:bg-secondary hover:text-white hover:border-secondary
+            ${isActive
+                ? 'bg-primary text-white border-primary shadow-md'
+                : 'border-base-300 text-base-content'
+            }
+        `
+    }
 
     return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar bg-base-100 shadow-md px-4">
+            {/* Left */}
             <div className="navbar-start">
-                <h1 className="btn btn-ghost text-xl">Shop-Online</h1>
+                <Link
+                    href="/customer/dashboard"
+                    className="text-xl font-bold tracking-wide hover:text-primary transition-colors"
+                >
+                    Shop-Online
+                </Link>
             </div>
 
+            {/* Center */}
             <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1 gap-5">
-                    <Link className='border-2 p-2 rounded-4xl' href='my-orders'>My Orders</Link>
-                    <Link className='border-2 p-2 rounded-4xl' href='track-order'>Track Order</Link>
+                <ul className="flex gap-4">
+                    <li>
+                        <Link
+                            href="/customer/dashboard"
+                            className={navLinkClass('/customer/dashboard')}
+                        >
+                            Home
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            href="/customer/my-orders"
+                            className={navLinkClass('/customer/my-orders')}
+                        >
+                            My Orders
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            href="/customer/track-order"
+                            className={navLinkClass('/customer/track-order')}
+                        >
+                            Track Order
+                        </Link>
+                    </li>
                 </ul>
             </div>
 
-            <div className="navbar-end gap-2">
-                <Link className='btn btn-primary' href='check-out'>
-                    Check-out ({cart.length})
+            {/* Right */}
+            <div className="navbar-end gap-3">
+                <Link
+                    href="check-out"
+                    className="btn btn-primary btn-sm md:btn-md"
+                >
+                    Check-out
+                    <span className="ml-1 font-semibold">
+                        ({cart.length})
+                    </span>
                 </Link>
-                <button onClick={handleLogout} className="btn btn-error">Logout</button>
+
+                <button
+                    onClick={handleLogout}
+                    className="btn btn-error btn-sm md:btn-md"
+                >
+                    Logout
+                </button>
             </div>
         </div>
-    );
+    )
 }

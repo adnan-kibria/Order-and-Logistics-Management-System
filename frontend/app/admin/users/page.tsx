@@ -1,6 +1,6 @@
 import { User, Phone, Shield, Truck, Package, } from "lucide-react";
 import { UserService } from "../../_services/user.service";
-import { User as UserType } from "../../_interfaces/user.interface";
+import { User as UserType } from "../../_interfaces/user/user.interface";
 import Link from "next/link";
 import { SearchBar } from "@/app/components/search-bar";
 import { ActionButtons } from "@/app/components/actions";

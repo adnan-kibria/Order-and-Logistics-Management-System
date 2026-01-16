@@ -3,7 +3,7 @@
 import { User, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { ActionButtons } from "@/app/components/actions";
-import { UserTableProps } from "../_interfaces/user-table.interface";
+import { UserTableProps } from "../_interfaces/user/user-table.interface";
 
 
 export function UserTable({ data, searchTerm, typeLabel }: UserTableProps) {

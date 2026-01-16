@@ -1,5 +1,5 @@
 import { UserService } from "../../../_services/user.service";
-import { User as UserType } from "../../../_interfaces/user.interface";
+import { User as UserType } from "../../../_interfaces/user/user.interface";
 import { SearchBar } from "@/app/components/search-bar";
 import { UserTable } from "@/app/components/user-table";
 

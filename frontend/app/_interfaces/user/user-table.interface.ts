@@ -1,4 +1,4 @@
-import { User as UserType } from "@/app/_interfaces/user.interface";
+import { User as UserType } from "@/app/_interfaces/user/user.interface";
 
 export interface UserTableProps {
   data: UserType[];

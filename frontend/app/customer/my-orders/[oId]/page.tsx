@@ -1,4 +1,4 @@
-import { IOrder } from "@/app/_interfaces/order-details.interface";
+import { IOrder } from "@/app/_interfaces/order/order-details.interface";
 import { orderService } from "@/app/_services/order.service";
 
 export default async function OrderDetails({ params }: { params: Promise<{ oId: string }> }) {
@@ -17,8 +17,9 @@ export default async function OrderDetails({ params }: { params: Promise<{ oId: 
                             Order ID: <span className="font-medium">#{order.id}</span>
                         </p>
                     </div>
+
                     <span className="mt-4 sm:mt-0 inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium 
-                           bg-gradient-to-r from-indigo-500 to-blue-500 text-white shadow">
+                           bg-linear-to-r from-indigo-500 to-blue-500 text-white shadow">
                         {order.orderStatus.status}
                     </span>
                 </div>
@@ -39,7 +40,7 @@ export default async function OrderDetails({ params }: { params: Promise<{ oId: 
                         </p>
                     </div>
 
-                    <div className="bg-gradient-to-r from-indigo-500 to-blue-600 rounded-2xl shadow-sm p-6 text-white">
+                    <div className="bg-linear-to-r from-indigo-500 to-blue-600 rounded-2xl shadow-sm p-6 text-white">
                         <p className="text-sm opacity-90">Total Amount</p>
                         <p className="text-2xl font-semibold mt-1">
                             TK {Math.round(order.total)}

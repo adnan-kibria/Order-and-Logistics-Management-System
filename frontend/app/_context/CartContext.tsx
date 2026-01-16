@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState } from "react";
-import { ICartItem } from "../_interfaces/cart-item.interface";
+import { ICartItem } from "../_interfaces/order/cart-item.interface";
 
 type CartContextType = {
     cart: ICartItem[];

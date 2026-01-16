@@ -1,6 +1,6 @@
 import { CreateDeliverymanData } from "../_interfaces/create-deliverman-data.interface";
 import { CreateInventoryManagerData } from "../_interfaces/create-invmanager-data.interface";
-import { User } from "../_interfaces/user.interface";
+import { User } from "../_interfaces/user/user.interface";
 import api from "../lib/axios";
 
 

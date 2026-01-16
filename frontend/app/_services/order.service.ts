@@ -1,5 +1,5 @@
 import { get } from "http";
-import { ICartItem } from "../_interfaces/cart-item.interface";
+import { ICartItem } from "../_interfaces/order/cart-item.interface";
 import api from "../lib/axios";
 
 export const orderService = {
