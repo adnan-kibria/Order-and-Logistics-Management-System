@@ -6,7 +6,7 @@ export default async function OrderDetails({ params }: { params: Promise<{ oId: 
     const order: IOrder = await orderService.getOrderById(oId);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-10">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 px-4 py-10">
             <div className="max-w-6xl mx-auto space-y-8">
 
                 {/* Header */}
