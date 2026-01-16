@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { X, User, MapPin, Mail, Send, Loader2, Truck, ShieldCheck, Package } from "lucide-react";
+import { X, User, Send, Truck, Package } from "lucide-react";
 import { orderService } from "../_services/order.service";
 
 export default function OrderViewModal({ order, isOpen, onClose, deliverymen, onUpdate }: any) {
@@ -39,7 +39,6 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
     setLoading(true);
     try {
       if (target === 'customer') {
-        // userId from your backend param requirement
         await orderService.sendMailToCustomer(order.customer.userId, customerEmail);
         alert("Pusher notification & Email sent to Customer!");
       } else {
@@ -54,8 +53,6 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
-        
-        {/* Header */}
         <div className="p-6 border-b flex justify-between items-center bg-gray-50">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Order # {order.id}</h2>
@@ -65,8 +62,6 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
         </div>
 
         <div className="p-6 overflow-y-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Column 1: Customer & Shipping */}
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 font-bold text-gray-700 border-b pb-2"><User size={18}/> Information</h3>
             <div className="bg-gray-50 p-4 rounded-xl space-y-2">
@@ -87,8 +82,6 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                 </div>
             </div>
           </div>
-
-          {/* Column 2: Items & Financials */}
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 font-bold text-gray-700 border-b pb-2"><Package size={18}/> Order Items</h3>
             <div className="border rounded-xl overflow-hidden">
@@ -109,13 +102,10 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                 <p className="text-lg font-black text-indigo-700">Grand Total: Tk. {order.total}</p>
             </div>
           </div>
-
-          {/* Column 3: Logistics & Email Notifications */}
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 font-bold text-gray-700 border-b pb-2"><Truck size={18}/> Logistics</h3>
             
             <div className="space-y-4">
-                {/* Deliveryman Assignment */}
                 <div>
                     <label className="text-[10px] font-bold text-gray-400 uppercase">Assign Deliveryman</label>
                     <select 
@@ -129,8 +119,6 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                         ))}
                     </select>
                 </div>
-
-                {/* Notify Customer */}
                 <div className="p-4 border rounded-xl bg-orange-50/30 border-orange-100">
                     <label className="text-[10px] font-bold text-orange-700 uppercase">Notify Customer</label>
                     <div className="flex gap-2 mt-1">
@@ -138,8 +126,6 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                         <button onClick={() => sendNotification('customer')} className="p-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"><Send size={14}/></button>
                     </div>
                 </div>
-
-                {/* Notify Deliveryman */}
                 <div className="p-4 border rounded-xl bg-green-50/30 border-green-100">
                     <label className="text-[10px] font-bold text-green-700 uppercase">Notify Deliveryman</label>
                     <div className="flex gap-2 mt-1">
@@ -149,7 +135,6 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                 </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

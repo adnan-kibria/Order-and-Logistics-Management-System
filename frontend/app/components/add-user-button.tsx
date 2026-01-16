@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Eye, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { Plus} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { UserService } from "@/app/_services/user.service";
 import AddUserModal from "@/app/components/add-user-modal";
