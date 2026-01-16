@@ -16,7 +16,7 @@ export default function OrderTable({ initialOrders, deliverymen }: any) {
   const formatDate = (date: any) => date ? new Date(date).toLocaleString('en-GB') : "-";
 
   return (
-    <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">

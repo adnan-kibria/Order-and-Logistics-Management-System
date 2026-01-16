@@ -1,94 +1,35 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Plus, Trash2, User, Mail, Phone, Shield, Truck, Package, Search, Eye } from "lucide-react";
+import { User, Phone, Shield, Truck, Package, } from "lucide-react";
 import { UserService } from "../../_services/user.service";
 import { User as UserType } from "../../_interfaces/user.interface";
 import Link from "next/link";
-import  AddUserModal  from "../../components/add-user-modal";
+import { SearchBar } from "@/app/components/search-bar";
+import { ActionButtons } from "@/app/components/actions";
+import { AddUserButton } from "@/app/components/add-user-button";
 
-export default function UsersPage() {
-  const [users, setUsers] = useState<UserType[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<UserType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [userType, setUserType] = useState<"deliveryman" | "inventory_manager">("deliveryman");
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-  });
+export default async function UsersPage(props: {
+  searchParams: Promise<{ search?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const searchTerm = searchParams.search || "";
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  let users: UserType[] = [];
 
-  useEffect(() => {
-    if (searchTerm === "") {
-      setFilteredUsers(users);
-    } else {
-      setFilteredUsers(
-        users.filter(
-          (user) =>
-            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.profile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.role.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+  try {
+    const data = await UserService.getAllUsersWithRelations();
+    users = Array.isArray(data) ? data : [];
+
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      users = users.filter(
+        (user) =>
+          user.email.toLowerCase().includes(lowerTerm) ||
+          user.profile?.name?.toLowerCase().includes(lowerTerm) ||
+          user.role.toLowerCase().includes(lowerTerm)
       );
     }
-  }, [searchTerm, users]);
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const data = await UserService.getAllUsersWithRelations();
-      if (Array.isArray(data)) {
-        setUsers(data);
-        setFilteredUsers(data);
-      } else {
-        setUsers([]);
-        setFilteredUsers([]);
-      }
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      setUsers([]);
-      setFilteredUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (userType === "deliveryman") {
-        await UserService.createDeliveryman(formData);
-      } else {
-        await UserService.createInventoryManager(formData);
-      }
-      handleCloseModal();
-      fetchUsers();
-    } catch (error) {
-      console.error("Failed to create user", error);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setShowAddModal(false);
-    setFormData({ name: "", email: "", password: "", phone: "" });
-  };
-
-  const handleDeleteUser = async (email: string, role: string) => {
-    if (!confirm(`Are you sure you want to delete this ${role}?`)) return;
-    try {
-      await UserService.deleteUser(email);
-      fetchUsers();
-    } catch (error) {
-      console.error("Delete failed", error);
-    }
-  };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
 
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -108,49 +49,16 @@ export default function UsersPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading users...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">All Users</h1>
           <p className="text-gray-600 mt-1">Manage all system users ({users.length} total)</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center justify-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add User</span>
-        </button>
+        <AddUserButton />
       </div>
-
-      {/* Search Bar */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by email, name, or role..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      {/* Users Table */}
+      <SearchBar defaultValue={searchTerm} />
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -163,12 +71,12 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {filteredUsers.length === 0 ? (
+              {users.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-gray-500">No users found</td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => (
+                users.map((user) => (
                   <tr key={user.userId} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
@@ -202,16 +110,7 @@ export default function UsersPage() {
                       ) : <span className="text-xs text-gray-400 italic">No profile</span>}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center space-x-2">
-                        <Link href={`/admin/users/${user.userId}`} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg">
-                          <Eye className="w-5 h-5" />
-                        </Link>
-                        {user.role !== "admin" && (
-                          <button onClick={() => handleDeleteUser(user.email, user.role)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        )}
-                      </div>
+                      <ActionButtons email={user.email} userId={user.userId} />
                     </td>
                   </tr>
                 ))
@@ -220,17 +119,6 @@ export default function UsersPage() {
           </table>
         </div>
       </div>
-
-      {/* Use the new Component */}
-      <AddUserModal 
-        isOpen={showAddModal}
-        onClose={handleCloseModal}
-        onSubmit={handleAddUser}
-        userType={userType}
-        setUserType={setUserType}
-        formData={formData}
-        setFormData={setFormData}
-      />
     </div>
   );
 }
