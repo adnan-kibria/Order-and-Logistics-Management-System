@@ -13,7 +13,15 @@ export const orderService = {
             throw err;
         }
     },
-
+    trackOrders: async () => {
+        try {
+            const res = await api.get('order/track'); //temporary cId=2
+            return res.data;
+        }
+        catch (err) {
+            throw err;
+        }
+    },
     GetMyOrders: async () => {
         try {
             const res = await api.post('order/my-orders');
@@ -50,12 +58,12 @@ export const orderService = {
     cancelOrder: (id: number) => api.patch(`/order/cancel-order/${id}`),
     processOrder: (id: number) => api.patch(`/order/process-order/${id}`),
 
-    assignDeliveryman: (orderId: number, dmId: number) => 
+    assignDeliveryman: (orderId: number, dmId: number) =>
         api.patch(`/order/assign-deliveryman/${orderId}/${dmId}`),
 
-    sendMailToDM: (orderId: number, email: string) => 
+    sendMailToDM: (orderId: number, email: string) =>
         api.post(`/order/sendMailToDeliveryMan/${orderId}/${email}`),
 
-    sendMailToCustomer: (userId: string, email: string) => 
+    sendMailToCustomer: (userId: string, email: string) =>
         api.post(`/order/sendMailToCustomer/${userId}/${email}`),
 }

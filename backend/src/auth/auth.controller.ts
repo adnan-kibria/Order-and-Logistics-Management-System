@@ -37,17 +37,6 @@ export class AuthController {
     return payload;
   }
 
-  @Post('customer')
-  @UseGuards(CustomerGuard)
-  getCustomer() {
-    return "customer";
-  }
-  @Post('admin')
-  @UseGuards(AdminGuard)
-  getAdmin() {
-    return "admin";
-  }
-
   @Post('logout')
   logout(@Res({ passthrough: true }) res: express.Response): { message: string } {
     try {

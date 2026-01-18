@@ -157,7 +157,7 @@ export class OrderService {
     async getOrderById(oId: number): Promise<Orders> {
         const order = await this.orderRepo.findOne({
             relations
-                : ['customer', 'orderStatus', 'orderDetails', 'orderDetails.product','customer.shippingAddress'],
+                : ['customer', 'orderStatus', 'orderDetails', 'orderDetails.product', 'customer.shippingAddress'],
             where: { id: oId },
         });
         if (!order) {
@@ -186,19 +186,24 @@ export class OrderService {
 
     // Munna
     async trackOrders(cId: number): Promise<Orders[]> {
-        const customer = await this.customerRepo.findOneBy({ id: cId })
-        if (!customer) throw new Error('error')
+        try {
+            const customer = await this.customerRepo.findOneBy({ id: cId })
+            if (!customer) throw new NotFoundException('null customer')
 
-        return await this.orderRepo.find({
-            where: {
-                customer: customer,
-                orderStatus: {
-                    id: In([1, 2, 3, 5])
-                }
+            return await this.orderRepo.find({
+                where: {
+                    customer: customer,
+                    orderStatus: {
+                        id: In([1, 2, 3, 5])
+                    }
 
-            },
-            relations: ['orderStatus']
-        })
+                },
+                relations: ['orderStatus']
+            })
+        }
+        catch (error) {
+            throw error;
+        }
     }
 
     // Munna

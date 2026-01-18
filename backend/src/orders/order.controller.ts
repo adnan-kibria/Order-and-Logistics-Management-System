@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, Req, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { Orders } from "./entities/orders.entity";
 import { OrderService } from "./order.service";
-// import { Customers } from "src/customers/entities/customers.entity";
 import { CustomerGuard } from "src/auth/customer.guard";
 import { AdminGuard } from "src/auth/admin.guard";
 import { OrderDetails } from "./entities/order-details.entity";
@@ -18,18 +17,28 @@ export class OrderController {
     @Post('place')
     async placeOrder(@Req() req, @Body() placeOrderDTO: PlaceOrderDTO): Promise<Orders> {
         const token: string = req.cookies['jwt'];
-        // console.log('Token in placeOrder:', token);
         const cId = await this.orderService.user(token);
 
         return this.orderService.placeOrderV2(placeOrderDTO, cId);
     }
 
     //kibria
-      //kibria
+    //kibria
     // @UseGuards(AdminGuard)
     @Get('get-all-orders')
     getAllOrdersWithoutFilter(): Promise<Orders[]> {
         return this.orderService.getAllOrdersWithoutFilter();
+    }
+
+    @UseGuards(CustomerGuard)
+    @Get('track')
+    async trackOrders(@Req() req): Promise<Orders[]> {
+        // console.log('Tracking orders for customer ID:', cId);
+        const token: string = req.cookies['jwt'];
+        const cId = await this.orderService.user(token);
+        // console.log('Customer ID from token:', cId);
+        console.log('Token in trackOrders:', token);
+        return this.orderService.trackOrders(cId);
     }
 
     @Get(':oId')
@@ -37,12 +46,7 @@ export class OrderController {
         return this.orderService.getOrderById(oId);
     }
 
-    // Munna
-    @UseGuards(CustomerGuard)
-    @Get('track/:cId')
-    trackOrders(@Param('cId', ParseIntPipe) cId: number): Promise<Orders[]> {
-        return this.orderService.trackOrders(cId);
-    }
+
     // Munna
     @UseGuards(CustomerGuard)
     @Get('allCancelled/:cId')

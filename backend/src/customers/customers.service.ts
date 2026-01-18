@@ -64,7 +64,7 @@ export class CustomersService {
             }
             const newCustomer = this.customerRepo.create(c)
             const createdCustomer = await this.customerRepo.save(newCustomer);
-            await this.sendEmail(email, userCreated.userId);
+            // await this.sendEmail(email, userCreated.userId);
             return createdCustomer;
 
         } catch (error) {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AuthService } from "../_services/auth.service";
-import Button from "../components/button";
-import Input from "../components/input";
+import { AuthService } from "../../_services/auth.service";
+import Button from "../../components/button";
+import Input from "../../components/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

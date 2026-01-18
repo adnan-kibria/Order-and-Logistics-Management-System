@@ -15,6 +15,7 @@ export class CustomersController {
     @UsePipes(new ValidationPipe())
     @Post('register')
     register(@Body() customer: CreateCustomer): Promise<Customers> {
+        console.log('Received customer data:', customer);
         return this.customerService.register(customer)
     }
 
