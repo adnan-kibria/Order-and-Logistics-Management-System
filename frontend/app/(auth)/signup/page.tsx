@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { AuthService } from '@/app/_services/auth.service';
 import { RegisterCustomer } from '@/app/_interfaces/customer/register-customer.interface';
 import { RegisterCustomerSchema } from '@/app/_schemas/register-customer.schema';
+import Link from 'next/dist/client/link';
 
 export default function Registration() {
     const router = useRouter();
@@ -38,107 +39,151 @@ export default function Registration() {
     };
 
     return (
-        <div className="hero-content flex-col">
-            <div className="card w-full text-black max-w-sm">
-                <h1 className="text-center text-3xl">Register</h1>
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200 px-4">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200">
 
-                <div className="card-body">
-                    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                {/* Header */}
+                <div className="px-8 pt-8 pb-4 text-center border-b">
+                    <h1 className="text-3xl font-semibold text-gray-800">
+                        Create Account
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-500">
+                        Sign up to get started
+                    </p>
+                </div>
+
+                {/* Form */}
+                <div className="px-8 py-6">
+                    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
 
                         {/* Name */}
-                        <label className="label">Full Name</label>
-                        <input
-                            {...register('name')}
-                            className="input bg-white border-2"
-                            placeholder="Md Munna"
-                        />
-                        {isSubmitted && errors.name && (
-                            <p className="text-red-500">{errors.name.message}</p>
-                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Full Name
+                            </label>
+                            <input
+                                {...register('name')}
+                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-neutral focus:outline-none focus:ring-2 focus:ring-neutral/20"
+                                placeholder="Md Munna"
+                            />
+                            {isSubmitted && errors.name && (
+                                <p className="mt-1 text-xs text-red-500">
+                                    {errors.name.message}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Email */}
-                        <label className="label">Email</label>
-                        <input
-                            type="email"
-                            {...register('email')}
-                            className="input bg-white border-2"
-                            placeholder="name@example.com"
-                        />
-                        {isSubmitted && errors.email && (
-                            <p className="text-red-500">{errors.email.message}</p>
-                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                {...register('email')}
+                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-neutral focus:outline-none focus:ring-2 focus:ring-neutral/20"
+                                placeholder="name@example.com"
+                            />
+                            {isSubmitted && errors.email && (
+                                <p className="mt-1 text-xs text-red-500">
+                                    {errors.email.message}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Phone */}
-                        <label className="label">Phone</label>
-                        <input
-                            type="tel"
-                            {...register('phone')}
-                            className="input bg-white border-2"
-                            placeholder="01712345678"
-                        />
-                        {isSubmitted && errors.phone && (
-                            <p className="text-red-500">{errors.phone.message}</p>
-                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Phone Number
+                            </label>
+                            <input
+                                type="tel"
+                                {...register('phone')}
+                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-neutral focus:outline-none focus:ring-2 focus:ring-neutral/20"
+                                placeholder="01712345678"
+                            />
+                            {isSubmitted && errors.phone && (
+                                <p className="mt-1 text-xs text-red-500">
+                                    {errors.phone.message}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Address */}
-                        <label className="label">Address</label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Address
+                            </label>
 
-                        <input
-                            {...register('address.location')}
-                            className="input bg-white border-2"
-                            placeholder="Location"
-                        />
-                        {isSubmitted && errors.address?.location && (
-                            <p className="text-red-500">
-                                {errors.address.location.message}
-                            </p>
-                        )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <input
+                                    {...register('address.location')}
+                                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-neutral focus:outline-none focus:ring-2 focus:ring-neutral/20"
+                                    placeholder="Location"
+                                />
+                                <input
+                                    {...register('address.city')}
+                                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-neutral focus:outline-none focus:ring-2 focus:ring-neutral/20"
+                                    placeholder="City"
+                                />
+                            </div>
 
-                        <input
-                            {...register('address.city')}
-                            className="input bg-white border-2"
-                            placeholder="City"
-                        />
-                        {isSubmitted && errors.address?.city && (
-                            <p className="text-red-500">
-                                {errors.address.city.message}
-                            </p>
-                        )}
+                            {isSubmitted && (errors.address?.location || errors.address?.city) && (
+                                <p className="mt-1 text-xs text-red-500">
+                                    {errors.address?.location?.message || errors.address?.city?.message}
+                                </p>
+                            )}
 
-                        <input
-                            {...register('address.details')}
-                            className="input bg-white border-2"
-                            placeholder="Details"
-                        />
-                        {isSubmitted && errors.address?.details && (
-                            <p className="text-red-500">
-                                {errors.address.details.message}
-                            </p>
-                        )}
+                            <input
+                                {...register('address.details')}
+                                className="mt-3 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-neutral focus:outline-none focus:ring-2 focus:ring-neutral/20"
+                                placeholder="Address details"
+                            />
+                            {isSubmitted && errors.address?.details && (
+                                <p className="mt-1 text-xs text-red-500">
+                                    {errors.address.details.message}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Password */}
-                        <label className="label">Password</label>
-                        <input
-                            type="password"
-                            {...register('password')}
-                            className="input bg-white border-2"
-                            placeholder="Password"
-                        />
-                        {isSubmitted && errors.password && (
-                            <p className="text-red-500">{errors.password.message}</p>
-                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Password
+                            </label>
+                            <input
+                                type="password"
+                                {...register('password')}
+                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-neutral focus:outline-none focus:ring-2 focus:ring-neutral/20"
+                                placeholder="••••••••"
+                            />
+                            {isSubmitted && errors.password && (
+                                <p className="mt-1 text-xs text-red-500">
+                                    {errors.password.message}
+                                </p>
+                            )}
+                        </div>
 
+                        {/* Submit */}
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="btn btn-neutral mt-4 w-full"
+                            className="mt-4 w-full rounded-lg bg-neutral px-4 py-2.5 text-white font-medium hover:bg-neutral-focus transition disabled:opacity-60"
                         >
-                            {isSubmitting ? 'Registering...' : 'Register'}
+                            {isSubmitting ? 'Creating Account...' : 'Create Account'}
                         </button>
-
                     </form>
+                </div>
+
+                {/* Footer */}
+                <div className="px-8 py-4 text-center text-sm text-gray-500 border-t">
+                    Already have an account?
+                    <Link href="/signin" className="ml-1 text-neutral font-medium cursor-pointer hover:underline">
+                        Sign in
+                    </Link>
                 </div>
             </div>
         </div>
+
     );
 }
