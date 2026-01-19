@@ -130,6 +130,10 @@ export default function OrderViewModal({ order: initialOrder, isOpen, onClose, d
                       <span className="text-gray-700 font-semibold">Tk {item.orderPrice}</span>
                     </div>
                   ))}
+                  <div className="p-3 flex justify-between items-center text-sm">
+                    <span className="font-medium text-gray-800">Shipping Charge</span>
+                    <span className="text-gray-700 font-semibold">Tk {order.shippingCharge}</span>
+                  </div>
                 </div>
                 <div className="p-3 bg-gray-50 flex justify-between items-center font-bold border-t">
                   <span className="text-xs uppercase text-gray-600">Grand Total</span>
