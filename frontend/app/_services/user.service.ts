@@ -19,16 +19,6 @@ export const UserService = {
     }
   },
 
-  getAllUsers: async (): Promise<any[]> => {
-    const res = await api.get("/users");
-    return res.data || [];
-  },
-
-  getUserById: async (userId: string): Promise<any> => {
-    const res = await api.get(`/users/${userId}`);
-    return res.data;
-  },
-
   getUserProfileByAdmin: async (userId: string): Promise<any> => {
     try {
       const res = await api.get(`/users/admin/${userId}`);

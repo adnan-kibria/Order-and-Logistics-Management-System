@@ -62,16 +62,6 @@ export const AdminService = {
     return res.data;
   },
 
-  getOrdersByStatus: async (statusId: number): Promise<Order[]> => {
-    const res = await api.get(`/order/get-orders/${statusId}`);
-    return res.data || [];
-  },
-
-  getTotalSales: async (filter: "daily" | "weekly" | "monthly"): Promise<{ total: number }> => {
-    const res = await api.get(`/order/total-sales/${filter}`);
-    return res.data;
-  },
-
   getDeliverymen: async () => {
       const res = await api.get("/users/all-deliverymen");
       return res.data;
