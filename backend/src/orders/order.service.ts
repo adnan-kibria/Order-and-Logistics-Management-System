@@ -17,6 +17,7 @@ import { Users } from "src/users/entities/users.entity";
 import { JwtService } from "@nestjs/jwt";
 import { JwtPayload } from "src/auth/customer.guard";
 import { OrderItemDTO, PlaceOrderDTO } from "./dto/place-orderV2.dto";
+import { PusherService } from "src/pusher/pusher.service";
 
 
 @Injectable()
@@ -30,6 +31,7 @@ export class OrderService {
         @InjectRepository(DeliveryMen) private readonly deliverymenRepo: Repository<DeliveryMen>,
         @InjectRepository(OrderStatuses) private readonly orderStatusRepo: Repository<OrderStatuses>,
         @InjectRepository(Users) private readonly userRepo: Repository<Users>,
+        private readonly pusherService: PusherService,
         private readonly mailerService: MailerService) { }
 
     // async sendEmail(userEmail: string) {
@@ -374,8 +376,10 @@ export class OrderService {
         try {
             const order = await this.orderRepo.findOne({
                 where: { id: orderId },
-                relations: ['orderStatus']
+                relations: ['orderStatus', 'customer']
             })
+
+            console.log(order)
 
             if (!order) throw new BadRequestException('Order not found');
 
@@ -390,8 +394,21 @@ export class OrderService {
             }
 
             order.orderStatus = confirmedStatus;
+            const savedOrder = await this.orderRepo.save(order);
 
-            return await this.orderRepo.save(order);
+            await this.pusherService.trigger(
+                `order-${order.customer.id}`,   //PUBLIC channel
+                'order-status-changed',
+                {
+                    orderId: order.id,
+                    status: 'confirmed',
+                    message: `Your order #${order.id} has been confirmed`,
+                },
+            );
+
+
+            return savedOrder;
+
         } catch (error) {
             throw error;
         }

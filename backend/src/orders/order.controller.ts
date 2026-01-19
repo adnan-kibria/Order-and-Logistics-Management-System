@@ -8,18 +8,6 @@ import { AdminGuard } from "src/auth/admin.guard";
 import { OrderDetails } from "./entities/order-details.entity";
 import { PlaceOrderDTO } from "./dto/place-orderV2.dto";
 
-import Pusher from 'pusher';
-
-const pusher = new Pusher({
-    appId: process.env.PUSHER_APP_ID!,
-    key: process.env.PUSHER_KEY!,
-    secret: process.env.PUSHER_SECRET!,
-    cluster: process.env.PUSHER_CLUSTER!,
-    useTLS: true,
-});
-
-
-
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService: OrderService) { }
@@ -112,7 +100,7 @@ export class OrderController {
     }
 
     //kibria
-    @UseGuards(AdminGuard)
+    // @UseGuards(AdminGuard)
     @Patch('confirm-order/:orderId')
     confirmOrder(@Param('orderId') orderId: number,): Promise<Orders> {
         return this.orderService.confirmOrder(orderId);

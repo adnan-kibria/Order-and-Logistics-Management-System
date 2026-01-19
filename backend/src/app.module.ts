@@ -12,6 +12,7 @@ import { InventoryManagerModule } from './inventory-manager/inventory-manager.mo
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { CategoryModule } from './category/category.module';
+import { PusherModule } from './pusher/pusher.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CategoryModule } from './category/category.module';
     DeliverymanModule,
     InventoryManagerModule,
     CategoryModule,
+    PusherModule
   ],
   controllers: [],
   providers: [],

@@ -11,11 +11,12 @@ import { Customers } from "src/customers/entities/customers.entity";
 import { DeliveryMen } from "src/users/entities/deliverymen.entity";
 import { Users } from "src/users/entities/users.entity";
 import { Products } from "src/products/entities/products.entity";
+import { PusherModule } from "src/pusher/pusher.module";
 
 @Module({
     providers: [OrderService],
     controllers: [OrderController],
-    imports: [TypeOrmModule.forFeature([Orders, OrderStatuses, OrderDetails, Customers, DeliveryMen, Users, Products])],
+    imports: [PusherModule, TypeOrmModule.forFeature([Orders, OrderStatuses, OrderDetails, Customers, DeliveryMen, Users, Products])],
     // exports: [Orders, OrderStatuses, OrderDetails]
 })
 export class OrderModule { }
