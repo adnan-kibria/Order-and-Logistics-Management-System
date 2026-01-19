@@ -26,10 +26,15 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
     }
+    else if (pathname.startsWith('/admin')) {
+        if (payload.role !== 'admin') {
+            return NextResponse.redirect(new URL('/unauthorized', request.url));
+        }
+    }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/customer/:path*']
+    matcher: ['/customer/:path*', '/admin/:path*']
 };
