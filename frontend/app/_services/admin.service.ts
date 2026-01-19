@@ -52,6 +52,11 @@ export const AdminService = {
     return res.data;
   },
 
+  processOrder: async (orderId: number): Promise<Order> => {
+    const res = await api.patch(`/order/process-order/${orderId}`);
+    return res.data;
+  },
+
   assignDeliveryman: async (orderId: number, deliverymanId: number): Promise<Order> => {
     const res = await api.patch(`/order/assign-deliveryman/${orderId}/${deliverymanId}`);
     return res.data;
@@ -66,5 +71,10 @@ export const AdminService = {
     const res = await api.get(`/order/total-sales/${filter}`);
     return res.data;
   },
+
+    getDeliverymen: async () => {
+        const res = await api.get("/users/all-deliverymen");
+        return res.data;
+    },
 };
 

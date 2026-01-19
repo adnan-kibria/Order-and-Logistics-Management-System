@@ -1,15 +1,15 @@
-import { orderService } from "@/app/_services/order.service";
+import { AdminService } from "@/app/_services/admin.service";
 import { OrderActionWrapper } from "@/app/components/order-action"; // Small interactive part
 
 export default async function OrderPage() {
-  let orders = [];
+  let orders: any = [];
   let deliverymen = [];
 
   try {
     // 1. Fetch data on the Server
     const [ordersData, dmsData] = await Promise.all([
-      orderService.getOrders(),
-      orderService.getDeliverymen()
+      AdminService.getAllOrders(),
+      AdminService.getDeliverymen()
     ]);
     orders = ordersData;
     deliverymen = dmsData;

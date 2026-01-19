@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
-import { X, User, MapPin, Mail, Send, Truck, Package } from "lucide-react";
+import { X, User, MapPin, Mail, Truck, Package } from "lucide-react";
 import { orderService } from "../_services/order.service";
+import { AdminService } from "../_services/admin.service";
 
 export default function OrderViewModal({ order, isOpen, onClose, deliverymen, onUpdate }: any) {
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
   const handleAssign = (dmId: string) => {
     if (!dmId) return;
     handleAction(async () => {
-      await orderService.assignDeliveryman(order.id, parseInt(dmId));
+      await AdminService.assignDeliveryman(order.id, parseInt(dmId));
       // Auto-fill the staff email field when a name is selected
       const dm = deliverymen.find((d: any) => (d.userId || d.id) === parseInt(dmId));
       setEmails(prev => ({ ...prev, staff: dm?.email || dm?.user?.email || "" }));
@@ -112,7 +113,7 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                     onChange={(e) => handleAssign(e.target.value)}
                     disabled={loading}
                   >
-                    <option value="">-- Select by Name --</option>
+                    <option value="">Select</option>
                     {deliverymen.map((dm: any) => (
                       <option key={dm.userId || dm.id} value={dm.userId || dm.id}>
                         {/* Prioritizes Name over Email */}
@@ -123,25 +124,11 @@ export default function OrderViewModal({ order, isOpen, onClose, deliverymen, on
                 </div>
 
                 <div className="flex gap-2">
-                  <button onClick={() => handleAction(() => orderService.confirmOrder(order.id), "Confirmed")} className="flex-1 py-2 bg-green-600 text-white text-xs font-bold rounded shadow-sm hover:bg-green-700">Confirm</button>
-                  <button onClick={() => handleAction(() => orderService.processOrder(order.id), "Processing")} className="flex-1 py-2 bg-blue-600 text-white text-xs font-bold rounded shadow-sm hover:bg-blue-700">Process</button>
-                  <button onClick={() => handleAction(() => orderService.cancelOrder(order.id), "Cancelled")} className="flex-1 py-2 bg-red-50 text-red-600 text-xs font-bold rounded hover:bg-red-100 border border-red-200">Cancel</button>
+                  <button onClick={() => handleAction(() => AdminService.confirmOrder(order.id), "Confirmed")} className="flex-1 py-2 bg-green-600 text-white text-xs font-bold rounded shadow-sm hover:bg-green-700">Confirm</button>
+                  <button onClick={() => handleAction(() => AdminService.processOrder(order.id), "Processing")} className="flex-1 py-2 bg-blue-600 text-white text-xs font-bold rounded shadow-sm hover:bg-blue-700">Process</button>
+                  <button onClick={() => handleAction(() => AdminService.cancelOrder(order.id), "Cancelled")} className="flex-1 py-2 bg-red-50 text-red-600 text-xs font-bold rounded hover:bg-red-100 border border-red-200">Cancel</button>
                 </div>
               </div>
-            </section>
-
-            <section className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-               <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Send Email Notifications</h3>
-               <div className="space-y-3">
-                 <div className="flex gap-2">
-                   <input className="flex-1 p-2 text-xs border rounded bg-white" value={emails.customer} onChange={e => setEmails({...emails, customer: e.target.value})} placeholder="Customer Email" />
-                   <button onClick={() => handleAction(async () => orderService.sendMailToCustomer(order.customer.userId, emails.customer), "Sent!")} className="p-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors" title="Send to Customer"><Send size={14}/></button>
-                 </div>
-                 <div className="flex gap-2">
-                   <input className="flex-1 p-2 text-xs border rounded bg-white" value={emails.staff} onChange={e => setEmails({...emails, staff: e.target.value})} placeholder="Staff Email (Auto-filled)" />
-                   <button onClick={() => handleAction(async () => orderService.sendMailToDM(order.id, emails.staff), "Sent!")} className="p-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors" title="Send to Staff"><Send size={14}/></button>
-                 </div>
-               </div>
             </section>
           </div>
 
