@@ -268,9 +268,18 @@ export class UserService {
         }
     }
 
-    async getAllDeliveryMen(): Promise<Users[]> {
-        return await this.userRepository.find({
-            where: {role: 'deliveryman'},
+    async getAllDeliveryMen(): Promise<any[]> {
+        const deliverymen = await this.deliveryManRepository.find({
+            relations: ['user'],
+            order: { name: 'ASC' }
         });
+
+        // Return simplified structure with id, name, and email
+        return deliverymen.map(dm => ({
+            id: dm.id,
+            name: dm.name,
+            phone: dm.phone,
+            email: dm.user.email
+        }));
     }
 }

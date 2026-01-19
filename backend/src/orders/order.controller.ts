@@ -158,4 +158,9 @@ export class OrderController {
     async getAll() {
         return await this.orderService.findAllDeliveryMen();
     }
+
+    @Get('full-details/:orderId')
+    async getFullOrderDetails(@Param('orderId', ParseIntPipe) orderId: number): Promise<Orders> {
+        return await this.orderService.getOrderDetailsById(orderId);
+    }
 }

@@ -1,12 +1,11 @@
 import { AdminService } from "@/app/_services/admin.service";
-import { OrderActionWrapper } from "@/app/components/order-action"; // Small interactive part
+import { OrderActionWrapper } from "@/app/components/order-action";
 
 export default async function OrderPage() {
   let orders: any = [];
   let deliverymen = [];
 
   try {
-    // 1. Fetch data on the Server
     const [ordersData, dmsData] = await Promise.all([
       AdminService.getAllOrders(),
       AdminService.getDeliverymen()
@@ -26,8 +25,6 @@ export default async function OrderPage() {
         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Orders</h1>
         <p className="text-gray-500 mt-2">Manage logistics and track statuses.</p>
       </header>
-
-      {/* 2. The Table stays here in page.tsx */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -62,7 +59,7 @@ export default async function OrderPage() {
                   ) : "-"}
                 </td>
                 <td className="px-6 py-4 text-xs text-gray-500">{formatDate(order.deliveredAt)}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-4">
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
                       order.orderStatus?.id === 7 ? "bg-red-100 text-red-700" : 
                       order.orderStatus?.id === 9 ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
@@ -71,7 +68,6 @@ export default async function OrderPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    {/* 3. This small wrapper handles the Modal logic */}
                     <OrderActionWrapper order={order} deliverymen={deliverymen} />
                   </td>
                 </tr>

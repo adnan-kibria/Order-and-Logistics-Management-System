@@ -72,9 +72,14 @@ export const AdminService = {
     return res.data;
   },
 
-    getDeliverymen: async () => {
-        const res = await api.get("/users/all-deliverymen");
-        return res.data;
-    },
+  getDeliverymen: async () => {
+      const res = await api.get("/users/all-deliverymen");
+      return res.data;
+  },
+
+  getOrderDetails: async (orderId: number): Promise<Order> => {
+      const res = await api.get(`/order/full-details/${orderId}`);
+      return res.data;
+  },
 };
 

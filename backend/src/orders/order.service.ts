@@ -548,11 +548,35 @@ export class OrderService {
         }
     }
 
+    //kibria
     async findAllDeliveryMen(): Promise<DeliveryMen[]> {
         return await this.deliverymenRepo.find({
             relations: ['user'],
             order: { name: 'ASC' }
         });
+    }
+
+    //kibria
+    async getOrderDetailsById(orderId: number): Promise<Orders> {
+        const order = await this.orderRepo.findOne({
+            where: { id: orderId },
+            relations: [
+                'customer',
+                'customer.user',
+                'customer.shippingAddress',
+                'orderStatus',
+                'orderDetails',
+                'orderDetails.product',
+                'deliveryman',
+                'deliveryman.user'
+            ]
+        });
+
+        if (!order) {
+            throw new NotFoundException(`Order with ID ${orderId} not found`);
+        }
+
+        return order;
     }
 }
 
