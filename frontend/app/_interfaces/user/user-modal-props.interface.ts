@@ -1,4 +1,4 @@
-export interface AddUserModalProps {
+export interface AddUserProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -10,5 +10,10 @@ export interface AddUserModalProps {
     password: string;
     phone: string;
   };
-  setFormData: (data: any) => void;
+  setFormData: React.Dispatch<React.SetStateAction<{
+    name: string;
+    email: string;
+    password: string;
+    phone: string;
+  }>>;
 }
